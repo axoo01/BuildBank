@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuildBank - Construction Expense Tracker</title>
+    <base href="/LandingPage/">
+    <link rel="stylesheet" href="css/landing.css">
+    <link rel="icon" href="img/favicon.png" type="image/x-icon">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="logo">BuildBank</div>
+        <div class="nav-links">
+            <a href="#hero" class="nav-link" data-section="hero" onclick="showTab('hero')">Home</a>
+            <a href="#about" class="nav-link" data-section="about" onclick="showTab('about')">About Us</a>
+            <a href="#features" class="nav-link" data-section="features" onclick="showTab('features')">Features</a>
+        </div>
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="hero" id="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-headline"><span class="gradient-build">Build</span> Smarter,<span class="gradient-track">Track</span> Better!</h1>
+            <p class="hero-subheading">A simple, powerful construction expense tracker designed for small teams and property owners, staying in control of your project’s budget from the first brick to the final receipt.</p>
+            <button class="get-started-btn"><img src="img/rocket.png" alt="Get Started" class="rocket-icon"> Get Started</button>
+        </div>
+    </div>
+
+    <!-- Tab Section -->
+    <section class="tab-section" id="tab-section">
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-btn" onclick="showTab('about')">About Us</button>
+                <button class="tab-btn" onclick="showTab('features')">Features</button>
+            </div>
+            <div class="tab-content" id="about">
+                <div class="about-content">
+                    <p>BuildBank is your simple, secure, and intuitive partner for tracking construction expenses. Whether you're a small team, a family-run project, or just managing your own build, BuildBank helps you take control of your budget with zero guesswork.</p>
+                    <p>We believe that financial clarity should be effortless. That’s why we’ve built a tool that focuses on ease of use, transparent tracking, and practical features without overwhelming you with complexity. With BuildBank, you focus on the building. We’ll handle the numbers.</p>
+                    
+                </div>
+            </div>
+            <div class="tab-content" id="features">
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>Real-Time Expense Tracking</h3>
+                        <p>Log and monitor construction expenses as they happen. Always stay on top of where your money is going.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Access Your Dashboard Anywhere</h3>
+                        <p>Design to track your project’s finances from your phone, tablet, or computer.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Built for Small Teams</h3>
+                        <p>Collaborate effortlessly. Multiple users can contribute and stay aligned on every transaction.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Smart Summaries & Reports</h3>
+                        <p>View total spend, filter by category or review by date. Your entire project’s financial health in one glance.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Signup Modal -->
+    <div class="modal" id="signup-modal">
+        <div class="modal-content">
+            <h2>Sign Up</h2>
+            <form>
+                <div class="form-group">
+                    <input type="text" placeholder="Name" id="signupName" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" placeholder="Email" id="signupEmail" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" placeholder="Password" id="signupPassword" required>
+                </div>
+                <div class="form-group">
+                    <button type="button" id="signupBtn">Sign Up</button>
+                </div>
+            </form>
+            <p class="modal-link">Already have an account? <a href="#" class="login-link">Log In</a></p>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <h2>Log In</h2>
+            <form>
+                <div class="form-group">
+                    <input type="email" placeholder="Email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" placeholder="Password" id="loginPassword" required>
+                </div>
+                <div class="form-group">
+                    <button type="button" id="loginBtn">Log In</button>
+                </div>
+            </form>
+            <p class="modal-link"><a href="#" class="forgot-password">Forgot Password?</a></p>
+            <p class="modal-link">Don’t have an account? <a href="#" class="signup-link">Sign up</a></p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="copyright">© 2025 Axocrafts</p>
+    </footer>
+
+    <script type="module" src="js/landing.js"></script>
+</body>
+</html>

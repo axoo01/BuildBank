@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuildBank - Search Expenses</title>
+    <link rel="stylesheet" href="../Dashboard/dashboard.css"> <!-- Reuse existing styles -->
+    <link rel="icon" href="../LandingPage/img/favicon.png" type="image/x-icon">
+</head>
+<body>
+    <nav class="sidebar">
+    <div class="sidebar-brand">BuildBank</div>
+    <ul class="sidebar-menu">
+    <li class="menu-item"><a href="../Dashboard/dashboard.html"><img src="../Dashboard/icons/home.png" alt="home" class="icon"> Dashboard</a></li>
+    <li class="menu-item active"><a href="search.html"><img src="../Dashboard/icons/loupe.png" alt="search" class="icon"> Search Expenses</a></li>
+    <li class="menu-item"><a href="../Dashboard/dashboard.html#settings"><img src="../Dashboard/icons/tool.png" alt="settings" class="icon"> Settings</a></li>
+</ul>
+    <div class="sidebar-footer">
+        <p class="copyright">© 2025 Axocrafts</p>
+    </div>
+</nav>
+
+    <header class="topbar">
+        <div class="hamburger">☰</div>
+        <div class="welcome">Welcome, ...!</div>
+        <div class="user-actions">
+            <button class="logout-btn">Logout</button>
+        </div>
+    </header>
+
+    <main class="main-content">
+    <!-- Print Header (Hidden on Screen) -->
+<div class="print-header" style="display: none;">
+    <img src="../LandingPage/img/favicon.png" alt="BuildBank Logo" class="print-logo">
+    <h1>BuildBank Transactions</h1>
+    <p>Generated on: <span id="printDate"></span></p>
+</div>
+
+    <div class="search-section">
+        <!-- Existing content -->
+    </div>
+        <div class="search-section">
+            <div class="search-header">
+                <div class="search-bar">
+                    <input type="date" id="searchDate" required>
+                    <button id="searchBtn"><img src="../Dashboard/icons/loupe.png" alt="Search Icon" class="search-icon"></button>
+                    <button id="clearBtn">Clear</button>
+                </div>
+                <div class="action-buttons">
+                    <button id="printBtn">Print</button>
+                </div>
+            </div>
+            <table class="expense-table" id="expenseTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Requisition ID</th>
+                        <th>Amount (RWF)</th>
+                        <th>Description</th>
+                        <th>User</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="expenseTableBody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+        <!-- Replace the existing editExpenseForm section in search.html -->
+<div class="modal-overlay" id="editModalOverlay" style="display: none;">
+    <div class="modal-container">
+        <div class="expense-form" id="editExpenseForm" style="display: block;">
+            <h3>Edit Expense</h3>
+            <input type="hidden" id="editRequisitionId">
+            <input type="date" id="editTransactionDate" required>
+            <input type="number" id="editExpenseAmount" placeholder="Transaction Amount" min="0" required>
+            <input type="text" id="editExpenseDescription" placeholder="Expense Description" required>
+            <button type="button" id="updateExpenseBtn">Update Expense</button>
+            <button type="button" id="cancelEditBtn">Cancel</button>
+        </div>
+    </div>
+</div>
+    </main>
+
+    <script type="module" src="search.js"></script>
+</body>
+</html>

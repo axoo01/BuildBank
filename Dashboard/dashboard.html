@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuildBank - Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="icon" href="../LandingPage/img/favicon.png" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="sidebar">
+    <div class="sidebar-brand">BuildBank</div>
+    <ul class="sidebar-menu">
+    <li class="menu-item active"><a href="dashboard.html"><img src="../Dashboard/icons/home.png" alt="home" class="icon"> Dashboard</a></li>
+    <li class="menu-item"><a href="../Search/search.html"><img src="../Dashboard/icons/loupe.png" alt="search" class="icon"> Search Expenses</a></li>
+    <li class="menu-item"><img src="../Dashboard/icons/tool.png" alt="settings" class="icon"> Settings</li>
+</ul>
+    <div class="sidebar-footer">
+        <p class="copyright">© 2025 Axocrafts</p>
+    </div>
+</nav>
+
+    <header class="topbar">
+        <div class="hamburger">☰</div>
+        <div class="welcome">Welcome, ...!</div>
+        <div class="user-actions">
+            <button class="logout-btn">Logout</button>
+        </div>
+    </header>
+
+   <main class="main-content">
+    <!-- Project Setup Form (Create or Join) -->
+    <div class="project-setup" id="projectSetup" style="display: none;">
+        <h3>Get Started</h3>
+        <div class="setup-section create-project">
+            <h4>Create a New Project</h4>
+            <input type="text" id="projectNameInput" placeholder="Enter Project Name (e.g., Pension House)" required>
+            <button id="createProjectBtn">Create Project</button>
+        </div>
+        <div class="setup-section join-project">
+            <h4>Join an Existing Project</h4>
+            <input type="text" id="joinCodeInput" placeholder="Enter Invitation Code" required>
+            <button id="joinProjectBtn">Join Project</button>
+        </div>
+    </div>
+
+    <!-- Row 1: Budget Card (Pension House Value), Total Records, and Latest Entry -->
+    <div class="budget-latest-section">
+        <div class="budget-card" id="budgetCard" style="display: none;">
+            <h3 id="budgetCardTitle">Project Value</h3>
+            <div class="animated-number" id="remainingValue">0</div>
+            <hr class="value-line">
+        </div>
+        <div class="card total-records-card" style="display: none;">
+            <h3>Total Records</h3>
+            <div class="animated-number" id="totalRecords">0</div>
+        </div>
+        <div class="card" style="display: none;">
+            <h3>Latest Entry</h3>
+            <div id="latestEntry">No entries</div>
+        </div>
+    </div>
+
+    <!-- Row 2: Expense Form and Monthly Spending side by side -->
+    <div class="expense-chart-container">
+        <!-- Expense Form -->
+        <div class="expense-total-section">
+            <div class="expense-form" id="expenseForm" style="display: none;">
+                <h3>Add Expense</h3>
+                <input type="date" id="transactionDate" value="2025-06-04" required 
+                style="color: #D1D5DB; opacity: 0.7;" onfocus="this.style.color='#fff'; this.style.opacity='1';">
+                <input type="number" id="expenseAmount" placeholder="Transaction Amount" min="0" required>
+                <input type="text" id="expenseDescription" placeholder="Expense Description" required>
+                <button id="addExpenseBtn">Add Expense</button>
+            </div>
+        </div>
+
+        <!-- Monthly Spending -->
+        <div class="chart-section">
+            <div class="card chart-card" style="display: none;">
+                <h3>Monthly Spending</h3>
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-tab" id="settingsTab" style="display: none;">
+        <div class="setting-card" id="projectCodeCard">
+            <h4>Project Code</h4>
+            <div id="invitationCodeDisplay">Loading...</div>
+            <div id="codeStatus" style="display: none; color: red;">Project code expired</div>
+            <button id="copyCodeBtn">Copy Code</button>
+            <button id="generateNewCodeBtn" style="display: none;">Generate New Code</button>
+        </div>
+        <div class="setting-card-delete">
+            <h4>Delete Project</h4>
+            <button id="deleteProjectBtn">Delete Project</button>
+        </div>
+    </div>
+</main>
+
+    <script type="module" src="dashboard.js"></script>
+</body>
+</html>

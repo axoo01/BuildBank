@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuildBank - Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="icon" href="../Landing page/img/favicon.png" type="image/x-icon">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-brand">BuildBank</div>
+        <ul class="sidebar-menu">
+            <li class="menu-item active"><img src="../Dashboard/icons/home.png" alt="home" class="icon"> Dashboard</li>
+            <li class="menu-item"><img src="../Dashboard/icons/loupe.png" alt="home" class="icon"> Search Expenses</li>
+            <li class="menu-item"><img src="../Dashboard/icons/report.png" alt="home" class="icon"> Reports</li>
+            <li class="menu-item"><img src="../Dashboard/icons/tool.png" alt="home" class="icon"> Settings</li>
+        </ul>
+        <div class="sidebar-footer">
+            <p class="copyright">© 2025 Axocrafts</p>
+        </div>
+    </nav>
+
+    <!-- Topbar -->
+    <header class="topbar">
+        <div class="hamburger">☰</div>
+        <div class="welcome">Welcome, John Doe</div>
+        <div class="user-actions">
+            <button class="logout-btn">Logout</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- House Value Tracker -->
+        <div class="house-value-tracker">
+            <div class="initial-value-card" id="initialValueCard">
+                <h3>Set Initial House Value</h3>
+                <input type="number" id="houseValueInput" placeholder="Enter value" min="0">
+                <button id="setValueBtn">Submit</button>
+            </div>
+            <div class="budget-card" id="budgetCard" style="display: none;">
+                <h3>Remaining House Budget</h3>
+                <div class="animated-number" id="remainingValue">0</div>
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+                <button id="addExpenseBtn">Add Dummy Expense</button>
+            </div>
+        </div>
+
+        <!-- Overview Cards -->
+        <div class="overview-cards">
+            <div class="card"><h3>Total Expenses</h3><div class="animated-number" id="totalExpenses">30,000</div></div>
+            <div class="card"><h3>Total Records</h3><div class="animated-number" id="totalRecords">15</div></div>
+            <div class="card date-card"><h3>Latest Entry</h3><div id="latestEntry">May 29, 2025</div></div>
+            <div class="card chart-card"><h3>Monthly Spending</h3><canvas id="monthlyChart"></canvas></div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div class="settings-tab" id="settingsTab" style="display: none;">
+            <h3>Settings</h3>
+            <div class="settings-card-container">
+                <div class="setting-card">
+                    <h4>Top Up House Value</h4>
+                    <input type="number" id="topUpInput" placeholder="Add budget" min="0">
+                    <button id="topUpBtn">Top Up</button>
+                </div>
+                <div class="setting-card">
+                    <h4>Delete Project</h4>
+                    <button id="deleteProjectBtn">Delete Project</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

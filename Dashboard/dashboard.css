@@ -1,0 +1,1024 @@
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(to bottom, rgba(4, 20, 23, 1), rgba(4, 20, 23, 0.7));
+    color: #D1D5DB;
+    line-height: 1.6;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background: rgba(4, 20, 23, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 1001;
+}
+
+.sidebar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 26px;
+}
+
+.sidebar-menu {
+    list-style: none;
+    flex-grow: 1;
+}
+
+/* Ensure all menu items (with or without <a>) look the same */
+.menu-item {
+    padding: 10px 15px;
+    color: #D1D5DB;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Style <a> tags inside menu items to match the li styling */
+.menu-item a {
+    color: inherit;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+/* Hover and active states for all menu items */
+.menu-item:hover, .menu-item.active {
+    background: rgba(0, 196, 204, 0.3);
+    color: #05dde4;
+}
+
+/* Ensure icons align properly */
+.menu-item .icon {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+/* Remove the rule that disables hover for non-<a> items */
+.menu-item:not(:has(a)) {
+    cursor: pointer;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+.sidebar-footer {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.copyright {
+    font-size: 0.9rem;
+    background: linear-gradient(to right, #05dde4, #019fa4);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Topbar */
+.topbar {
+    position: fixed;
+    top: 0;
+    left: 250px;
+    right: 0;
+    height: 64px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.welcome {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+}
+
+.logout-btn {
+    padding: 8px 16px;
+    background: transparent;
+    border: 2px solid #05dde4;
+    color: #fff;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(0, 196, 204, 0.3);
+    color: #05dde4;
+}
+
+.hamburger {
+    display: none;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 250px;
+    padding: 120px 20px 20px;
+    min-height: calc(100vh - 64px);
+}
+
+/* Layout Containers */
+.budget-latest-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+    justify-content: center;
+}
+
+/* New container to hold expense and chart sections side by side */
+.expense-chart-container {
+    display: flex;
+    gap: 20px; /* Fixed 20px gap between cards */
+    margin: 30px auto 20px; /* 30px from top cards, auto margins for centering */
+    align-items: flex-start;
+    justify-content: center;
+    width: fit-content; /* Wrap tightly around children */
+    max-width: 720px; /* Limit total width to ~700px + 20px gap */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.expense-total-section {
+    flex: 0 0 410px; /* Fixed width of 350px, no growth */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.chart-section {
+    flex: 0 0 410px; /* Fixed width of 350px, no growth */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Card Styling */
+.budget-card, .card, .expense-form, .setup-section {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 350px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.chart-card {
+    width: 350px; /* Fixed width to match expense-form */
+    height: auto; /* Allow natural height */
+    overflow: hidden;
+}
+
+/* Ensure the canvas inside the chart card scales properly */
+.chart-card canvas {
+    width: 100% !important; /* Fill the 350px width */
+    height: auto !important;
+    max-height: 250px; /* Cap height for desktop */
+}
+
+/* Responsive behavior - stack vertically on smaller screens */
+@media (max-width: 768px) {
+    .expense-chart-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px; /* Maintain 20px gap */
+        width: 100%;
+        max-width: 350px; /* Single card width on mobile */
+    }
+    .expense-total-section,
+    .chart-section {
+        flex: 0 0 350px; /* Fixed width on mobile */
+        max-width: 350px;
+    }
+    .chart-card {
+        width: 350px; /* Enforce fixed width */
+        height: auto;
+    }
+    .chart-card canvas {
+        max-height: 250px; /* Reduced for mobile */
+        width: 100% !important;
+        height: auto !important;
+    }
+}
+
+/* Settings Section */
+.settings-tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 40px 20px;
+    max-width: 600px; /* Limit width so it doesn't stretch too wide */
+    margin: 0 auto; /* This will center within the main-content area */
+}
+
+.setting-card{
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center all content within each card */
+    justify-content: center;
+    margin: 0 auto;
+}
+
+/* Existing styles remain unchanged except for the sections below */
+
+.project-setup {
+    margin-bottom: 20px;
+    padding: 20px;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+}
+
+.project-setup h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #00C4CC;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    text-align: center;
+}
+
+.project-setup .setup-section {
+    display: block !important;
+    margin: 0 auto 20px auto !important;
+    max-width: 350px !important;
+}
+
+.project-setup .setup-section:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Card Styling */
+.budget-card, .card, .expense-form, .setup-section {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 350px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+.setting-card{
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 250px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    margin: 20px auto;
+
+}
+.setting-card-delete{
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 200px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    margin: 20px auto;
+
+}
+.card {
+    max-width: 250px;
+}
+
+.total-records-card {
+    width: 200px;
+    padding: 20px 10px;
+    text-align: center;
+    font-size: 2.5rem;
+}
+
+.animated-number {
+    font-size: 1rem;
+}
+
+.budget-card h3, .card h3, .expense-form h3, .setting-card h4, .setup-section h4 {
+    font-size: 1.2rem;
+    margin-bottom: 3px;
+    color: #00C4CC;
+}
+.setting-card-delete h4 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+    color: #00C4CC;
+}
+
+.budget-card:hover, .card:hover, .expense-form:hover, .setting-card:hover, .setting-card-delete:hover, .setup-section:hover {
+    box-shadow: 0 8px 20px rgba(0, 196, 204, 0.3);
+}
+
+.budget-card::before, .card::before, .expense-form::before, .setting-card::before, .setting-card-delete::before, .setup-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(5, 221, 228, 0.1), transparent);
+    transition: left 0.4s ease;
+}
+
+.budget-card:hover::before, .card:hover::before, .expense-form:hover::before, .setting-card:hover::before, .setting-card-delete::before, .setup-section::before {
+    left: 100%;
+}
+
+/* Expense Form Specific Styling */
+.expense-form {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2rem;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    animation: fadeIn 0.6s ease-out;
+}
+
+.expense-form h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #00C4CC;
+    margin-bottom: 1.5rem;
+}
+
+#expenseAmount, #expenseDescription, #projectNameInput, #joinCodeInput, #transactionDate {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transition: border-color 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+#expenseAmount:focus, #expenseDescription:focus, #projectNameInput:focus, #joinCodeInput:focus, #transactionDate:focus {
+    outline: none;
+    border-color: #00C4CC;
+    box-shadow: 0 0 5px rgba(0, 196, 204, 0.3);
+}
+
+#addExpenseBtn, #createProjectBtn, #joinProjectBtn {
+    width: 100%;
+    padding: 10px;
+    background: #00C4CC;
+    border: none;
+    color: #0A2F36;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#addExpenseBtn:hover, #createProjectBtn:hover, #joinProjectBtn:hover {
+    background-color: #0099A5;
+}
+
+#expenseAmount::placeholder, #expenseDescription::placeholder, #projectNameInput::placeholder, #joinCodeInput::placeholder, #transactionDate::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+    opacity: 1;
+}
+
+/* Edit Expense Modal Specific Styling */
+.modal-overlay {
+    position: absolute; /* Position within .main-content instead of fixed */
+    top: 0;
+    left: 250px; /* Start where the sidebar ends */
+    width: calc(100% - 250px); /* Adjust width to exclude sidebar */
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1002;
+}
+
+.modal-container {
+    width: auto;
+    max-width: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+@media (max-width: 768px) {
+    .modal-overlay {
+        left: 0;
+        width: 100%;
+    }
+
+    .modal-container {
+        width: 90%; /* Ensure the form takes most of the screen width */
+        max-width: 350px; /* Slightly smaller max-width for mobile */
+        margin: 0 auto; /* Reinforce centering */
+    }
+}
+
+#editTransactionDate, #editExpenseAmount, #editExpenseDescription {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transition: border-color 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+#editTransactionDate:focus, #editExpenseAmount:focus, #editExpenseDescription:focus {
+    outline: none;
+    border-color: #00C4CC;
+    box-shadow: 0 0 5px rgba(0, 196, 204, 0.3);
+}
+
+#editTransactionDate::placeholder, #editExpenseAmount::placeholder, #editExpenseDescription::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+    opacity: 1;
+}
+
+#updateExpenseBtn {
+    width: 100%;
+    padding: 10px;
+    background: #00C4CC;
+    border: none;
+    color: #0A2F36;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#updateExpenseBtn:hover {
+    background-color: #0099A5;
+}
+
+#cancelEditBtn {
+    width: 100%;
+    padding: 10px;
+    background: #6B7280;
+    border: none;
+    color: #D1D5DB;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+#cancelEditBtn:hover {
+    background-color: #9CA3AF;
+}
+
+/* Customize the date input appearance for Edit form */
+#editTransactionDate::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+#editTransactionDate::-webkit-inner-spin-button,
+#editTransactionDate::-webkit-clear-button {
+    display: none;
+}
+
+#editTransactionDate {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Other Card Elements */
+.setting-card input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.setting-card input:focus {
+    border-color: #05dde4;
+    outline: none;
+}
+
+.setting-card button, .setting-card-delete button {
+    padding: 8px 16px;
+    background: #00C4CC;
+    border: none;
+    color: #0A2F36;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.budget-card button:hover, .setting-card button:hover, .setting-card-delete button:hover {
+    background: #0099A5;
+}
+
+.animated-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
+}
+
+.value-line {
+    border: 0;
+    height: 2px;
+    width: 70%;
+    background: #00C4CC;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.chart-card {
+    width: 100%;
+    max-width: 500px;
+    height: 366px;
+    overflow: hidden;
+}
+
+/* Ensure the canvas inside the chart card is constrained */
+.chart-card canvas {
+    max-height: 250px;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/***************** Search section ****************/
+.search-section {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.search-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search-bar {
+    display: flex;
+    gap: 10px;
+}
+
+#searchDate {
+    padding: 8px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+.search-icon {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+#searchBtn {
+    border-color: #00C4CC;
+    background: transparent;
+    padding: 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#searchBtn:hover {
+    background-color: #00C4CC;
+}
+#clearBtn {
+    padding: 0 14px;
+    background: #00C4CC;
+    border: none;
+    color: #0A2F36;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#clearBtn:hover {
+    background-color: #0099A5;
+}
+
+#printBtn, #downloadBtn {
+    padding: 8px 16px;
+    background: #00C4CC;
+    border: none;
+    color: #0A2F36;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#printBtn:hover, #downloadBtn:hover {
+    background-color: #0099A5;
+}
+
+.expense-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.expense-table th, .expense-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.expense-table th {
+    background: rgba(0, 196, 204, 0.3);
+    color: #05dde4;
+}
+
+.expense-table td {
+    color: #D1D5DB;
+}
+
+.edit-btn, .delete-btn {
+    padding: 5px 7px;
+    margin-right: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.edit-btn {
+    background: #00C4CC;
+    color: #0A2F36;
+}
+
+.delete-btn {
+    background: #FF5555;
+    color: #fff;
+}
+
+.edit-btn:hover {
+    background: #0099A5;
+}
+
+.delete-btn:hover {
+    background: #CC4444;
+}
+
+
+/* Report Page */
+
+.no-reports-message {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 300px - 20px);
+    text-align: center;
+    color: #D1D5DB;
+}
+/* Slide Down Animation for Title */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Slide Up Animation for Text */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Apply Animations to No Reports Message */
+.no-reports-message h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #00C4CC;
+    margin-bottom: 1rem;
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+.no-reports-message p {
+    font-size: 1.1rem;
+    color: #9CA3AF;
+    animation: slideUp 1s ease-out forwards;
+    animation-delay: 0.2s; /* Slight delay so the title animates first */
+}
+
+
+/* Mobile View for Table */
+@media (max-width: 768px) {
+    .expense-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10px;
+    }
+
+    .expense-table th, .expense-table td {
+        padding: 4px;
+    }
+
+    .expense-table th:nth-child(1), .expense-table td:nth-child(1) {
+        width: 60px;
+    }
+
+    .expense-table th:nth-child(2), .expense-table td:nth-child(2) {
+        width: 80px;
+    }
+
+    .expense-table th:nth-child(3), .expense-table td:nth-child(3) {
+        width: 60px;
+    }
+
+    .expense-table th:nth-child(4), .expense-table td:nth-child(4) {
+        width: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .expense-table th:nth-child(5), .expense-table td:nth-child(5) {
+        width: 60px;
+    }
+
+    .expense-table th:nth-child(6), .expense-table td:nth-child(6) {
+        width: 80px;
+    }
+
+    .edit-btn, .delete-btn {
+        font-size: 0.7rem;
+        padding: 2px 5px;
+        margin: 0 2px;
+        line-height: 1;
+    }
+
+    body {
+        -webkit-text-size-adjust: none;
+        touch-action: pan-x pan-y pinch-zoom;
+    }
+
+    .search-section {
+        overflow-x: visible;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-250px);
+    }
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    .icon {
+        width: 22px;
+        height: 22px;
+    }
+    .menu-item {
+        font-size: 1.1rem;
+        padding: 12px 15px;
+    }
+    .topbar {
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        justify-content: space-between;
+        padding: 0 15px;
+    }
+    .hamburger {
+        display: block !important;
+        font-size: 2rem !important;
+        cursor: pointer !important;
+        color: #D1D5DB !important;
+        line-height: 64px !important;
+        padding: 0 10px !important;
+        width: 50px !important;
+        height: 64px !important;
+        position: relative !important;
+        z-index: 1003 !important;
+        pointer-events: auto !important;
+        align-self: center !important;
+    }
+    .welcome {
+        flex-grow: 1;
+        text-align: center;
+        line-height: 64px;
+    }
+    .user-actions {
+        line-height: 64px;
+    }
+    .main-content {
+        margin-left: 0;
+    }
+    .budget-latest-section, .expense-total-section, .chart-section, .settings-tab, .project-setup {
+        flex-direction: column;
+        align-items: center;
+    }
+    .budget-card, .card, .expense-form, .setting-card, .setup-section {
+        width: 100%;
+        max-width: 350px;
+    }
+    .total-records-card {
+        max-width: 200px;
+        padding: 20px;
+    }
+    .total-records-card .animated-number {
+        font-size: 1.5rem;
+    }
+    .chart-card {
+        height: 250px;
+    }
+    
+
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Specific Styling for Setup Sections */
+.setup-section.create-project, .setup-section.join-project {
+    margin: 0 auto;
+    flex: 0 0 auto;
+    max-width: 350px;
+}
+
+/* Specific Styling for Settings Buttons */
+.setting-card .button-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.setting-card #copyCodeBtn, .setting-card #generateNewCodeBtn {
+    width: auto;
+    padding: 8px 16px;
+    margin: 0;
+}
+
+/* Style for the code status message */
+#codeStatus {
+    display: block;
+    margin-bottom: 10px;
+    color: #FF5555;
+    font-size: 1rem;
+}
+
+/* Print Styles */
+@media print {
+    .print-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .print-logo {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 10px;
+    }
+
+    .print-header h1 {
+        font-size: 24px;
+        color: #05dde4;
+        margin: 0;
+    }
+
+    .print-header p {
+        font-size: 14px;
+        color: #000;
+        margin: 5px 0 0;
+    }
+
+    .sidebar, .topbar, .search-header {
+        display: none !important;
+    }
+
+    .search-section {
+        margin: 0;
+        padding: 0;
+    }
+
+    .expense-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: none;
+    }
+
+    .expense-table th, .expense-table td {
+        border: 1px solid #000;
+        padding: 8px;
+        color: #000;
+        font-size: 12px;
+    }
+
+    .expense-table th {
+        background: rgba(0, 196, 204, 0.3);
+        color: #05dde4;
+        font-weight: bold;
+    }
+
+    .expense-table th:last-child,
+    .expense-table td:last-child {
+        display: none;
+    }
+
+    @page {
+        margin: 1cm;
+    }
+
+    body {
+        margin: 0;
+        color: #000;
+        background: #fff;
+    }
+}
