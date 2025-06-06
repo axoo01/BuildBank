@@ -915,6 +915,14 @@ body {
     .chart-card {
         height: 250px;
     }
+    .expense-form input[type="date"],
+    .expense-form input[type="number"],
+    .expense-form input[type="text"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0;
+        flex-shrink: 1;
+    }
     
 
 }
