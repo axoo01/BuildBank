@@ -85,103 +85,123 @@ document.addEventListener('DOMContentLoaded', () => {
     loginModal = document.querySelector('#login-modal');
     const getStartedBtn = document.querySelector('.get-started-btn');
     const loginLink = document.querySelector('.login-link');
-    const signupLink = document.querySelector('.signup-link'); // New signup link in login modal
+    const signupLink = document.querySelector('.signup-link');
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
 
     if (getStartedBtn) {
         getStartedBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (loginModal) {
-                loginModal.style.display = 'flex'; // Show login modal first
-            }
+            if (loginModal) loginModal.style.display = 'flex';
         });
     }
 
     if (hamburger && navLinks) {
-        hamburger.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-            hamburger.classList.toggle('open');
+        // Toggle sidebar on hamburger click
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isActive = navLinks.classList.toggle('active');
+            hamburger.classList.toggle('open', isActive);
+            console.log('Hamburger clicked, nav-links active:', isActive);
+        });
+
+        // Close sidebar on menu item click - CONSOLIDATED INTO ONE EVENT LISTENER
+        navLinks.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent default anchor behavior
+                console.log('Menu item clicked:', link.textContent);
+                
+                // Close the navigation menu
+                navLinks.classList.remove('active');
+                hamburger.classList.remove('open');
+                
+                // Get the tab ID and show the tab
+                const tabId = link.getAttribute('data-section');
+                if (tabId) {
+                    showTab(tabId);
+                }
+            });
+        });
+
+        // Close sidebar on outside click
+        document.addEventListener('click', (e) => {
+            if (navLinks.classList.contains('active') && !navLinks.contains(e.target) && !hamburger.contains(e.target)) {
+                console.log('Clicked outside sidebar');
+                navLinks.classList.remove('active');
+                hamburger.classList.remove('open');
+            }
         });
     }
 
-    loginLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        signupModal.style.display = 'none';
-        loginModal.style.display = 'flex';
-    });
+    if (loginLink) {
+        loginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            signupModal.style.display = 'none';
+            loginModal.style.display = 'flex';
+        });
+    }
 
-    signupLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        loginModal.style.display = 'none';
-        signupModal.style.display = 'flex';
-    });
+    if (signupLink) {
+        signupLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginModal.style.display = 'none';
+            signupModal.style.display = 'flex';
+        });
+    }
 
     [signupModal, loginModal].forEach(modal => {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.style.display = 'none';
+            });
+        }
     });
-    // Add enter key event listener
+
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && loginModal.style.display === 'flex') {
+        if (e.key === 'Enter' && loginModal && loginModal.style.display === 'flex') {
             e.preventDefault();
-            document.getElementById('loginBtn').click();
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) loginBtn.click();
         }
-        if (e.key === 'Enter' && signupModal.style.display === 'flex') {
+        if (e.key === 'Enter' && signupModal && signupModal.style.display === 'flex') {
             e.preventDefault();
-            document.getElementById('signupBtn').click();
+            const signupBtn = document.getElementById('signupBtn');
+            if (signupBtn) signupBtn.click();
         }
-    }); 
+    });
 
     window.showTab = function(tabId, button) {
         const tabContents = document.querySelectorAll('.tab-content, .hero');
-        tabContents.forEach(content => {
-            content.classList.remove('active');
-        });
-
+        tabContents.forEach(content => content.classList.remove('active'));
         const tabButtons = document.querySelectorAll('.tab-btn, .nav-link');
-        tabButtons.forEach(btn => {
-            btn.classList.remove('active');
-        });
-
+        tabButtons.forEach(btn => btn.classList.remove('active'));
         const selectedContent = document.getElementById(tabId);
-        if (selectedContent) {
-            selectedContent.classList.add('active');
-        }
-
+        if (selectedContent) selectedContent.classList.add('active');
         const navLink = document.querySelector(`.nav-link[data-section="${tabId}"]`);
-        if (navLink) {
-            navLink.classList.add('active');
-        }
-
+        if (navLink) navLink.classList.add('active');
         const tabButton = document.querySelector(`.tab-btn[onclick="showTab('${tabId}')"]`);
-        if (tabButton) {
-            tabButton.classList.add('active');
+        if (tabButton) tabButton.classList.add('active');
+        if (button) button.classList.add('active');
+        if (selectedContent) {
+            selectedContent.scrollIntoView({ behavior: 'smooth' });
         }
-
-        if (button) {
-            button.classList.add('active');
-        }
-
-        selectedContent.scrollIntoView({ behavior: 'smooth' });
     };
 
+    // Only add event listeners to tab buttons (not nav-links to avoid duplication)
     document.querySelectorAll('.tab-btn').forEach(button => {
         button.addEventListener('click', () => {
-            const tabId = button.getAttribute('onclick').match(/showTab\('(.+)'\)/)[1];
-            showTab(tabId, button);
+            const onclickAttr = button.getAttribute('onclick');
+            if (onclickAttr) {
+                const match = onclickAttr.match(/showTab\('(.+)'\)/);
+                if (match) {
+                    const tabId = match[1];
+                    showTab(tabId, button);
+                }
+            }
         });
     });
 
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', () => {
-            const tabId = link.getAttribute('data-section');
-            showTab(tabId);
-        });
-    });
+    // REMOVED DUPLICATE EVENT LISTENER FOR NAV-LINKS
 
     const initializeTab = () => {
         const hash = window.location.hash;
