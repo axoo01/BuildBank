@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (error) {
                     alert('Logout error: ' + error.message);
                 } else {
-                    window.location.replace('../LandingPage/index.html');
+                    window.location.replace('../index.html');
                 }
             } catch (err) {
                 console.log('Unexpected error during sign out:', err);

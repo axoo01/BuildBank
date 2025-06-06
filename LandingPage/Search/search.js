@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (error) {
             alert('Logout error: ' + error.message);
         } else {
-            window.location.replace('../LandingPage/index.html');
+            window.location.replace('../index.html');
         }
     });
 
