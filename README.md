@@ -4,7 +4,7 @@ BuildBank is a sleek, collaborative web application built to simplify expense tr
 and ease of use, it enables users to log, monitor, and manage expenses efficiently across team-driven projects—whether it's a house build, event planning, 
 or any collaborative effort.
 
----
+
 
 ## Features
 
@@ -16,7 +16,7 @@ or any collaborative effort.
 - Fully responsive UI optimized for all screen sizes
 - Clean, aesthetic design with intuitive UX
 
----
+
 
 Ideal for  teams, project managers, or freelancers looking to keep financial oversight simple yet powerful.
 
