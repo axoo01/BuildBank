@@ -16,7 +16,7 @@ or any collaborative effort.
 - Fully responsive UI optimized for all screen sizes
 - Clean, aesthetic design with intuitive UX
 
-
+---
 
 Ideal for  teams, project managers, or freelancers looking to keep financial oversight simple yet powerful.
 
