@@ -68,9 +68,10 @@
         <div class="expense-total-section">
             <div class="expense-form" id="expenseForm" style="display: none;">
                 <h3>Add Expense</h3>
-                <input type="date" id="transactionDate" value="2025-06-04" required class="dashboard-input" onfocus="this.classList.add('focused')">
-                <input type="number" id="expenseAmount" placeholder="Transaction Amount" min="0" required class="dashboard-input">
-                <input type="text" id="expenseDescription" placeholder="Expense Description" required class="dashboard-input">
+                <input type="date" id="transactionDate" value="2025-06-04" required 
+                style="color: #D1D5DB; opacity: 0.7;" onfocus="this.style.color='#fff'; this.style.opacity='1';">
+                <input type="number" id="expenseAmount" placeholder="Transaction Amount" min="0" required>
+                <input type="text" id="expenseDescription" placeholder="Expense Description" required>
                 <button id="addExpenseBtn">Add Expense</button>
             </div>
         </div>

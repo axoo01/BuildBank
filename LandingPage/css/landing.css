@@ -475,6 +475,10 @@ body {
 
 /* ----- Landing Page: Mobile Responsiveness for Navigation ----- */
 @media (max-width: 768px) {
+.nav-container {
+        background: linear-gradient(to right, rgba(4, 20, 23, 0.7), rgba(4, 20, 23, 0.2));
+    }
+
     .nav-links {
         display: flex; /* Change from 'none' to 'flex' */
         flex-direction: column;
