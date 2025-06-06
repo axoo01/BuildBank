@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function checkAuth() {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
-            window.location.href = '../LandingPage/index.html';
+            window.location.href = '../index.html';
             return null;
         }
         // Set the session for Supabase client to use authenticated requests

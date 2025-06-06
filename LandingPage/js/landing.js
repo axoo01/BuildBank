@@ -58,7 +58,7 @@ async function loginUser(email, password) {
             alert('Login error: ' + error.message);
         } else {
             alert('Login successful!');
-            window.location.href = 'http://localhost:3000/Dashboard/dashboard.html';
+            window.location.href = '/Dashboard/dashboard.html';
         }
     } catch (err) {
         alert('Unexpected error: ' + err.message);
