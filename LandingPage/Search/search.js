@@ -91,28 +91,27 @@ async function renderExpenses() {
             });
 
             // Add Delete button listener
-
-const deleteBtn = row.querySelector('.delete-btn');
-deleteBtn.addEventListener('click', async () => {
-    if (confirm('Are you sure you want to delete this expense?')) {
-        const { data, error } = await supabase
-            .from('expenses')
-            .delete()
-            .eq('requisition_id', exp.requisition_id)
-            .eq('project_id', currentProject.id);
-        console.log('Delete response:', { data, error }); // Debug log
-        if (error || !data || data.length === 0) {
-            if (error && (error.code === '42501' || error.message.toLowerCase().includes('permission denied'))) {
-                alert('Only the creator can delete this record!');
-            } else {
-                alert('Failed to delete expense: ' + (error ? error.message : 'Only the creator can delete this record!'));
-            }
-        } else {
-            alert('Expense deleted successfully!');
-            window.location.reload();
-        }
-    }
-});
+            const deleteBtn = row.querySelector('.delete-btn');
+            deleteBtn.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to delete this expense?')) {
+                    const { data, error } = await supabase
+                        .from('expenses')
+                        .delete()
+                        .eq('requisition_id', exp.requisition_id)
+                        .eq('project_id', currentProject.id);
+                    console.log('Delete response:', { data, error }); // Debug log
+                    if (error || !data || data.length === 0) {
+                        if (error && (error.code === '42501' || error.message.toLowerCase().includes('permission denied'))) {
+                            alert('Only the creator can delete this record!');
+                        } else {
+                            alert('Failed to delete expense: ' + (error ? error.message : 'Only the creator can delete this record!'));
+                        }
+                    } else {
+                        alert('Expense deleted successfully!');
+                        window.location.reload();
+                    }
+                }
+            });
         });
     }
 }
@@ -149,7 +148,7 @@ async function loadExpenses(dateFilter = null) {
     } else {
         const now = Date.now();
         if (!appState.lastFetch || now - appState.lastFetch > 5 * 60 * 1000) {
-            const { data: expenses, error } = await query.limit(5);
+            const { data: expenses, error } = await query; // Removed .limit(5)
             if (error) {
                 alert('Failed to load expenses: ' + error.message);
                 return;
@@ -231,13 +230,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // Load initial 5 recent expenses
+    // Load all initial expenses
     const { data: initialExpenses, error: initialError } = await supabase
         .from('expenses')
         .select('transaction_date, requisition_id, amount, description, user_id')
         .eq('project_id', currentProject.id)
-        .order('transaction_date', { ascending: false })
-        .limit(5);
+        .order('transaction_date', { ascending: false }); // Removed .limit(5)
     if (initialError) {
         alert('Failed to load initial expenses: ' + initialError.message);
         return;

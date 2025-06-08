@@ -129,58 +129,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 }
     // Event Listeners
-    if (createProjectBtn) {
-        createProjectBtn.addEventListener('click', async () => {
-            const projectName = projectNameInput.value.trim();
-            if (projectName) {
-                const newCode = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
-                const newExpiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000);
-                const { data, error } = await supabase
-                    .from('projects')
-                    .insert({
-                        name: projectName,
-                        house_value: 0,
-                        invitation_code: newCode,
-                        invitation_code_expires_at: newExpiresAt
-                    })
-                    .select('id, name, house_value, invitation_code, invitation_code_expires_at')
-                    .single();
-                if (error) {
-                    alert('Failed to create project: ' + error.message);
-                } else {
-                    currentProject = data;
-                    const user = await checkAuth();
-                    const { error: membershipError } = await supabase.from('project_members').insert({
-                        project_id: currentProject.id,
-                        user_id: user.id,
-                        role: 'admin'
-                    });
-                    if (membershipError) {
-                        console.error('Failed to add user to project:', membershipError);
-                        alert('Project created, but failed to add you as a member: ' + membershipError.message);
-                    } else {
-                        projectSetup.style.display = 'none';
-                        budgetCard.style.display = 'block';
-                        expenseForm.style.display = 'block';
-                        budgetLatestSection.style.display = 'flex';
-                        expenseTotalSection.style.display = 'flex';
-                        chartSection.style.display = 'flex';
-                        latestEntryCard.style.display = 'block';
-                        totalRecordsCard.style.display = 'block';
-                        monthlyChartCard.style.display = 'block';
-                        budgetCardTitle.textContent = `${currentProject.name} Value`;
-                        await fetchExpenses(currentProject.id);
-                        updateBudgetCard(currentProject.house_value || 0);
-                        updateOverviewCards();
-                        initializeChart();
-                        updateSettingsCode();
-                    }
-                }
+ if (createProjectBtn) {
+    createProjectBtn.addEventListener('click', async () => {
+        const projectName = projectNameInput.value.trim();
+        if (projectName) {
+            const newCode = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+            const newExpiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000);
+            const { data, error } = await supabase
+                .from('projects')
+                .insert({
+                    name: projectName,
+                    house_value: 0,
+                    invitation_code: newCode,
+                    invitation_code_expires_at: newExpiresAt
+                })
+                .select('id, name, house_value, invitation_code, invitation_code_expires_at')
+                .single();
+            if (error) {
+                console.error('Project creation error:', error); // Log full error
+                alert('Failed to create project: ' + error.message);
             } else {
-                alert('Please enter a project name.');
+                currentProject = data;
+                const user = await checkAuth();
+                const { error: membershipError } = await supabase.from('project_members').insert({
+                    project_id: currentProject.id,
+                    user_id: user.id,
+                    role: 'admin'
+                });
+                if (membershipError) {
+                    console.error('Membership error:', membershipError);
+                    alert('Project created, but failed to add you as a member: ' + membershipError.message);
+                } else {
+                    projectSetup.style.display = 'none';
+                    budgetCard.style.display = 'block';
+                    expenseForm.style.display = 'block';
+                    budgetLatestSection.style.display = 'flex';
+                    expenseTotalSection.style.display = 'flex';
+                    chartSection.style.display = 'flex';
+                    latestEntryCard.style.display = 'block';
+                    totalRecordsCard.style.display = 'block';
+                    monthlyChartCard.style.display = 'block';
+                    budgetCardTitle.textContent = `${currentProject.name} Value`;
+                    await fetchExpenses(currentProject.id);
+                    updateBudgetCard(currentProject.house_value || 0);
+                    updateOverviewCards();
+                    initializeChart();
+                    updateSettingsCode();
+                }
             }
-        });
-    }
+        } else {
+            alert('Please enter a project name.');
+        }
+    });
+}
 
     if (joinProjectBtn) {
         joinProjectBtn.addEventListener('click', async () => {

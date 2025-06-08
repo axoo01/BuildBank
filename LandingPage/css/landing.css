@@ -1,9 +1,12 @@
 /* ----- Landing Page: Global Styles ----- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Source Sans Pro', sans-serif;
 }
 
 body {
@@ -121,7 +124,7 @@ body {
 .hero-headline {
     font-size: 4rem;
     font-weight: 700;
-    line-height: 0.9;
+    line-height: 1;
     margin-bottom: 1rem;
     animation: slideFadeIn 1s ease-out forwards;
 }
@@ -141,7 +144,7 @@ body {
 }
 
 .hero-subheading {
-    font-size: 1rem;
+    font-size: 1.1rem;
     color: #D1D5DB;
     margin-bottom: 2rem;
     line-height: 1.4;
@@ -215,7 +218,7 @@ body {
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     padding: 2rem;
-    border-radius: 12px;
+    border-radius: 15px;
     width: 90%;
     max-width: 400px;
     text-align: center;
@@ -281,6 +284,19 @@ body {
 
 .forgot-password:hover {
     text-decoration: underline;
+}
+
+.back-to-login {
+    color: #00C4CC; /* Matches .forgot-password and .login-link color */
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: underline; /* Adds underline as requested */
+    text-decoration-color: #00C4CC; /* Ensures underline matches text color */
+}
+
+.back-to-login:hover {
+    text-decoration-color: #0099A5; /* Darker shade on hover for consistency */
+    color: #0099A5; /* Darker shade on hover */
 }
 
 @keyframes slideUp {
@@ -528,6 +544,11 @@ body {
 
     .hero-subheading {
         font-size: 0.9rem;
+    }
+    .modal-content{
+        width: 70%;
+        max-width: 350px;
+
     }
 }
 
