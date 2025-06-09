@@ -257,6 +257,11 @@ document.addEventListener('DOMContentLoaded', () => {
             sidebar.classList.toggle('active');
         }, { capture: true });
     }
+    document.addEventListener('click', (e) => {
+        if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
+    });
 
     if (addExpenseBtn) {
     addExpenseBtn.addEventListener('click', async () => {

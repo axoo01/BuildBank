@@ -381,4 +381,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     hamburger.addEventListener('click', () => {
         sidebar.classList.toggle('active');
     });
+    document.addEventListener('click', (e) => {
+        if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
+    });
 });
