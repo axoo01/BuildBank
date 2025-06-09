@@ -546,8 +546,8 @@ body {
         font-size: 0.9rem;
     }
     .modal-content{
-        width: 70%;
-        max-width: 350px;
+        width: 75%;
+        max-width: 370px;
 
     }
 }
