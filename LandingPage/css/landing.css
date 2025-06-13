@@ -298,6 +298,16 @@ body {
     text-decoration-color: #0099A5; /* Darker shade on hover for consistency */
     color: #0099A5; /* Darker shade on hover */
 }
+.error-message {
+    color: #ff4d4d;
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
+    display: none; /* Hidden by default */
+}
+.error-message.active {
+    display: block; /* Show when active */
+}
 
 @keyframes slideUp {
     from {

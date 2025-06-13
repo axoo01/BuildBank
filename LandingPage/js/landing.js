@@ -5,7 +5,15 @@ const supabase = createClient('https://smcyqxylufjgkmumhonk.supabase.co', 'eyJhb
 let signupModal, loginModal, forgotPasswordModal;
 
 async function signUpUser(email, password, name) {
+    const signupError = document.getElementById('signup-error');
     try {
+        // Validate inputs
+        if (!name || !email || !password) {
+            signupError.textContent = 'Please enter name, email, and password to sign up.';
+            signupError.classList.add('active');
+            return;
+        }
+
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
@@ -14,18 +22,19 @@ async function signUpUser(email, password, name) {
             }
         });
         if (error) {
-            alert('Signup error: ' + error.message);
+            signupError.textContent = 'Signup error: ' + error.message;
+            signupError.classList.add('active');
             throw error;
         }
 
         if (!data.user) {
-            alert('Signup successful, but user data not available. Please confirm your email and log in.');
+            signupError.textContent = 'Signup successful, but user data not available. Please confirm your email and log in.';
+            signupError.classList.add('active');
             signupModal.style.display = 'none';
             loginModal.style.display = 'flex';
             return;
         }
 
-        // Insert a new record into public.users
         const { error: insertError } = await supabase
             .from('users')
             .insert({
@@ -36,23 +45,30 @@ async function signUpUser(email, password, name) {
             });
 
         if (insertError) {
-            alert('Failed to save user details: ' + insertError.message);
+            signupError.textContent = 'Failed to save user details: ' + insertError.message;
+            signupError.classList.add('active');
             throw insertError;
         }
 
-        alert('Signup successful! Now log in to view the dashboard.');
-        if (!signupModal || !loginModal) {
-            alert('Modal elements not found');
-        }
+        // Remove success alert, redirect to login
         signupModal.style.display = 'none';
         loginModal.style.display = 'flex';
     } catch (err) {
-        alert('Unexpected error: ' + err.message);
+        signupError.textContent = 'Unexpected error: ' + err.message;
+        signupError.classList.add('active');
     }
 }
 
 async function loginUser(email, password) {
+    const loginError = document.getElementById('login-error');
     try {
+        // Validate inputs
+        if (!email || !password) {
+            loginError.textContent = 'Please enter both email and password to login.';
+            loginError.classList.add('active');
+            return;
+        }
+
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
             if (error.message.includes('Invalid login credentials') || error.status === 400) {
@@ -62,36 +78,48 @@ async function loginUser(email, password) {
                     .eq('email', email)
                     .single();
                 if (!userExists) {
-                    alert('No account exists with this email. Please sign up.');
+                    loginError.textContent = 'No account exists with this email. Please sign up.';
                 } else {
-                    alert('Invalid email or password. Please try again.');
+                    loginError.textContent = 'Invalid email or password. Please try again.';
                 }
             } else {
-                alert('Login error: ' + error.message);
+                loginError.textContent = 'Login error: ' + error.message;
             }
+            loginError.classList.add('active');
         } else {
-            alert('Login successful!');
             window.location.href = '/Dashboard/dashboard.html';
         }
     } catch (err) {
-        alert('Unexpected error: ' + err.message);
+        loginError.textContent = 'Unexpected error: ' + err.message;
+        loginError.classList.add('active');
     }
 }
 
 async function resetPassword(email) {
+    const forgotError = document.getElementById('forgot-error');
     try {
+        // Validate input
+        if (!email) {
+            forgotError.textContent = 'Please enter your email to reset password.';
+            forgotError.classList.add('active');
+            return;
+        }
+
         const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: 'https://buildbank.netlify.app//LandingPage/reset-password.html' // Replace with your reset page URL
+            redirectTo: 'https://buildbank.netlify.app//LandingPage/reset-password.html'
         });
         if (error) {
-            alert('Error sending reset link: ' + error.message);
+            forgotError.textContent = 'Error sending reset link: ' + error.message;
+            forgotError.classList.add('active');
         } else {
-            alert('Password reset link sent to your email! Please check your inbox.');
+            forgotError.textContent = 'Password reset link sent to your email! Please check your inbox.';
+            forgotError.classList.add('active');
             forgotPasswordModal.style.display = 'none';
             loginModal.style.display = 'flex';
         }
     } catch (err) {
-        alert('Unexpected error: ' + err.message);
+        forgotError.textContent = 'Unexpected error: ' + err.message;
+        forgotError.classList.add('active');
     }
 }
 
@@ -100,25 +128,58 @@ document.getElementById('signupBtn')?.addEventListener('click', (event) => {
     const name = document.getElementById('signupName').value;
     const email = document.getElementById('signupEmail').value;
     const password = document.getElementById('signupPassword').value;
+    const signupError = document.getElementById('signup-error');
+    signupError.classList.remove('active'); // Clear error on new attempt
     signUpUser(email, password, name);
 }, false);
+
+// Clear error on input focus
+document.getElementById('signupName')?.addEventListener('focus', () => {
+    const signupError = document.getElementById('signup-error');
+    signupError.classList.remove('active');
+});
+document.getElementById('signupEmail')?.addEventListener('focus', () => {
+    const signupError = document.getElementById('signup-error');
+    signupError.classList.remove('active');
+});
+document.getElementById('signupPassword')?.addEventListener('focus', () => {
+    const signupError = document.getElementById('signup-error');
+    signupError.classList.remove('active');
+});
 
 document.getElementById('loginBtn')?.addEventListener('click', (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
+    const loginError = document.getElementById('login-error');
+    loginError.classList.remove('active'); // Clear error on new attempt
     loginUser(email, password);
 }, false);
+
+// Clear error on input focus
+document.getElementById('loginEmail')?.addEventListener('focus', () => {
+    const loginError = document.getElementById('login-error');
+    loginError.classList.remove('active');
+});
+document.getElementById('loginPassword')?.addEventListener('focus', () => {
+    const loginError = document.getElementById('login-error');
+    loginError.classList.remove('active');
+});
 
 document.getElementById('resetPasswordBtn')?.addEventListener('click', (e) => {
     e.preventDefault();
     const email = document.getElementById('forgotEmail').value;
-    if (email) {
-        resetPassword(email);
-    } else {
-        alert('Please enter your email.');
-    }
+    const forgotError = document.getElementById('forgot-error');
+    forgotError.classList.remove('active'); // Clear error on new attempt
+    resetPassword(email);
+}, false);
+
+// Clear error on input focus
+document.getElementById('forgotEmail')?.addEventListener('focus', () => {
+    const forgotError = document.getElementById('forgot-error');
+    forgotError.classList.remove('active');
 });
+
 
 document.addEventListener('DOMContentLoaded', () => {
     signupModal = document.querySelector('#signup-modal');
