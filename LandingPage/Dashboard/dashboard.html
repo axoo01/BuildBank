@@ -37,11 +37,13 @@
             <h4>Create a New Project</h4>
             <input type="text" id="projectNameInput" placeholder="Enter Project Name (e.g., Pension House)" required>
             <button id="createProjectBtn">Create Project</button>
+            <div id="create-error" class="error-message"></div> <!-- New error for create -->
         </div>
         <div class="setup-section join-project">
             <h4>Join an Existing Project</h4>
             <input type="text" id="joinCodeInput" placeholder="Enter Invitation Code" required>
             <button id="joinProjectBtn">Join Project</button>
+            <div id="join-error" class="error-message"></div> <!-- New error for join -->
         </div>
     </div>
 
@@ -73,6 +75,7 @@
                 <input type="number" id="expenseAmount" placeholder="Transaction Amount" min="0" required>
                 <input type="text" id="expenseDescription" placeholder="Expense Description" required>
                 <button id="addExpenseBtn">Add Expense</button>
+                <div id="expense-error" class="error-message"></div> <!-- New error for expense -->
             </div>
         </div>
 

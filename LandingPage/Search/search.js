@@ -12,7 +12,6 @@ async function checkAuth() {
         window.location.href = '../index.html';
         return null;
     }
-    // Set the session for Supabase client to use authenticated requests
     await supabase.auth.setSession(session.access_token);
     const { data: { user } } = await supabase.auth.getUser();
     return user;
@@ -34,10 +33,11 @@ async function renderExpenses() {
     const editTransactionDate = document.getElementById('editTransactionDate');
     const editExpenseAmount = document.getElementById('editExpenseAmount');
     const editExpenseDescription = document.getElementById('editExpenseDescription');
+    const editError = document.getElementById('edit-error');
 
-    if (!expenseTableBody || !expenseTable || !editModalOverlay || !editRequisitionId || !editTransactionDate || !editExpenseAmount || !editExpenseDescription) {
+    if (!expenseTableBody || !expenseTable || !editModalOverlay || !editRequisitionId || !editTransactionDate || !editExpenseAmount || !editExpenseDescription || !editError) {
         console.error('Required DOM elements not found:', {
-            expenseTableBody, expenseTable, editModalOverlay, editRequisitionId, editTransactionDate, editExpenseAmount, editExpenseDescription
+            expenseTableBody, expenseTable, editModalOverlay, editRequisitionId, editTransactionDate, editExpenseAmount, editExpenseDescription, editError
         });
         return;
     }
@@ -48,7 +48,8 @@ async function renderExpenses() {
         .select('id, name')
         .in('id', userIds);
     if (userError) {
-        alert('Failed to fetch user details: ' + userError.message);
+        editError.textContent = 'Failed to fetch user details: ' + userError.message;
+        editError.classList.add('active');
         return;
     }
     const userMap = users.reduce((map, user) => {
@@ -93,21 +94,23 @@ async function renderExpenses() {
             // Add Delete button listener
             const deleteBtn = row.querySelector('.delete-btn');
             deleteBtn.addEventListener('click', async () => {
+                const editError = document.getElementById('edit-error');
+                editError.classList.remove('active');
                 if (confirm('Are you sure you want to delete this expense?')) {
                     const { data, error } = await supabase
                         .from('expenses')
                         .delete()
                         .eq('requisition_id', exp.requisition_id)
                         .eq('project_id', currentProject.id);
-                    console.log('Delete response:', { data, error }); // Debug log
                     if (error || !data || data.length === 0) {
                         if (error && (error.code === '42501' || error.message.toLowerCase().includes('permission denied'))) {
-                            alert('Only the creator can delete this record!');
+                            editError.textContent = 'Only the creator can delete this record!';
                         } else {
-                            alert('Failed to delete expense: ' + (error ? error.message : 'Only the creator can delete this record!'));
+                            editError.textContent = 'Failed to delete expense: ' + (error ? error.message : 'Only the creator can delete this record!');
                         }
+                        editError.classList.add('active');
                     } else {
-                        alert('Expense deleted successfully!');
+                        // Success handled by reload
                         window.location.reload();
                     }
                 }
@@ -117,21 +120,7 @@ async function renderExpenses() {
 }
 
 async function loadExpenses(dateFilter = null) {
-    const expenseTableBody = document.getElementById('expenseTableBody');
-    const expenseTable = document.getElementById('expenseTable');
-    const editModalOverlay = document.getElementById('editModalOverlay');
-    const editRequisitionId = document.getElementById('editRequisitionId');
-    const editTransactionDate = document.getElementById('editTransactionDate');
-    const editExpenseAmount = document.getElementById('editExpenseAmount');
-    const editExpenseDescription = document.getElementById('editExpenseDescription');
-
-    if (!expenseTableBody || !expenseTable || !editModalOverlay || !editRequisitionId || !editTransactionDate || !editExpenseAmount || !editExpenseDescription) {
-        console.error('Required DOM elements not found:', {
-            expenseTableBody, expenseTable, editModalOverlay, editRequisitionId, editTransactionDate, editExpenseAmount, editExpenseDescription
-        });
-        return;
-    }
-
+    const searchError = document.getElementById('search-error');
     let query = supabase
         .from('expenses')
         .select('transaction_date, requisition_id, amount, description, user_id')
@@ -141,16 +130,18 @@ async function loadExpenses(dateFilter = null) {
     if (dateFilter) {
         const { data: expenses, error } = await query.eq('transaction_date', dateFilter);
         if (error) {
-            alert('Failed to load expenses: ' + error.message);
+            searchError.textContent = 'Failed to load expenses: ' + error.message;
+            searchError.classList.add('active');
             return;
         }
         appState.expenses = expenses;
     } else {
         const now = Date.now();
         if (!appState.lastFetch || now - appState.lastFetch > 5 * 60 * 1000) {
-            const { data: expenses, error } = await query; // Removed .limit(5)
+            const { data: expenses, error } = await query;
             if (error) {
-                alert('Failed to load expenses: ' + error.message);
+                searchError.textContent = 'Failed to load expenses: ' + error.message;
+                searchError.classList.add('active');
                 return;
             }
             appState.expenses = expenses;
@@ -165,16 +156,18 @@ async function loadExpenses(dateFilter = null) {
 document.addEventListener('DOMContentLoaded', async () => {
     const user = await checkAuth();
 
-    // Fetch user name for welcome message
     const { data: userData, error: userError } = await supabase
         .from('users')
         .select('name')
         .eq('id', user.id)
         .single();
     if (userError) {
-        alert('Failed to fetch user details: ' + userError.message);
+        const searchError = document.getElementById('search-error');
+        searchError.textContent = 'Failed to fetch user details: ' + userError.message;
+        searchError.classList.add('active');
         return;
     }
+
     const welcomeMessage = document.querySelector('.welcome');
     if (welcomeMessage) {
         const name = userData.name || 'User';
@@ -182,13 +175,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         welcomeMessage.textContent = `Welcome, ${capitalizedName}!`;
     }
 
-    // Check project membership
     const { data: membershipData, error: membershipError } = await supabase
         .from('project_members')
         .select('project_id')
         .eq('user_id', user.id);
     if (membershipError || membershipData.length === 0) {
-        alert('You must be part of a project to view expenses.');
+        const searchError = document.getElementById('search-error');
+        searchError.textContent = 'You must be part of a project to view expenses.';
+        searchError.classList.add('active');
         window.location.href = '../Dashboard/dashboard.html';
         return;
     }
@@ -200,12 +194,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         .eq('id', projectId)
         .single();
     if (projectError) {
-        alert('Failed to fetch project details: ' + projectError.message);
+        const searchError = document.getElementById('search-error');
+        searchError.textContent = 'Failed to fetch project details: ' + projectError.message;
+        searchError.classList.add('active');
         return;
     }
     currentProject = projectData;
 
-    // DOM Elements
     const searchDate = document.getElementById('searchDate');
     const searchBtn = document.getElementById('searchBtn');
     const printBtn = document.getElementById('printBtn');
@@ -219,55 +214,62 @@ document.addEventListener('DOMContentLoaded', async () => {
     const editExpenseDescription = document.getElementById('editExpenseDescription');
     const updateExpenseBtn = document.getElementById('updateExpenseBtn');
     const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const searchError = document.getElementById('search-error');
+    const editError = document.getElementById('edit-error');
+    const logoutError = document.getElementById('logout-error');
 
     if (!searchDate || !searchBtn || !printBtn || !clearBtn || !expenseTable || !expenseTableBody || 
         !editModalOverlay || !editRequisitionId || !editTransactionDate || !editExpenseAmount || !editExpenseDescription || 
-        !updateExpenseBtn || !cancelEditBtn) {
+        !updateExpenseBtn || !cancelEditBtn || !searchError || !editError || !logoutError) {
         console.error('Required DOM elements not found:', {
             searchDate, searchBtn, printBtn, clearBtn, expenseTable, expenseTableBody,
-            editModalOverlay, editRequisitionId, editTransactionDate, editExpenseAmount, editExpenseDescription, updateExpenseBtn, cancelEditBtn
+            editModalOverlay, editRequisitionId, editTransactionDate, editExpenseAmount, editExpenseDescription, updateExpenseBtn, cancelEditBtn,
+            searchError, editError, logoutError
         });
         return;
     }
 
-    // Load all initial expenses
     const { data: initialExpenses, error: initialError } = await supabase
         .from('expenses')
         .select('transaction_date, requisition_id, amount, description, user_id')
         .eq('project_id', currentProject.id)
-        .order('transaction_date', { ascending: false }); // Removed .limit(5)
+        .order('transaction_date', { ascending: false });
     if (initialError) {
-        alert('Failed to load initial expenses: ' + initialError.message);
+        searchError.textContent = 'Failed to load initial expenses: ' + initialError.message;
+        searchError.classList.add('active');
         return;
     }
     appState.initialExpenses = initialExpenses;
     appState.expenses = [...initialExpenses];
     await renderExpenses();
 
-    // Search functionality
     searchBtn.addEventListener('click', async () => {
         const date = searchDate.value;
+        const searchError = document.getElementById('search-error');
+        searchError.classList.remove('active');
         if (!date) {
-            alert('Please select a date to search.');
+            searchError.textContent = 'Please select a date to search.';
+            searchError.classList.add('active');
             return;
         }
         appState.lastSearchDate = date;
         await loadExpenses(date);
     });
 
-    // Clear functionality
     clearBtn.addEventListener('click', async () => {
         searchDate.value = '';
+        const searchError = document.getElementById('search-error');
+        searchError.classList.remove('active');
         appState.lastSearchDate = null;
         if (appState.expenses.length === 0 && appState.lastSearchDate) {
-            alert('No records for the search date');
+            searchError.textContent = 'No records for the search date';
+            searchError.classList.add('active');
         } else {
             appState.expenses = [...appState.initialExpenses];
             await renderExpenses();
         }
     });
 
-    // Print functionality
     printBtn.addEventListener('click', () => {
         const printDate = document.getElementById('printDate');
         const now = new Date();
@@ -279,24 +281,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.print();
     });
 
-    // Update Expense functionality
     updateExpenseBtn.addEventListener('click', async () => {
         const requisitionId = editRequisitionId.value;
         const amount = parseInt(editExpenseAmount.value) || 0;
         const description = editExpenseDescription.value || `Expense on ${new Date().toISOString()}`;
         const transactionDate = editTransactionDate.value;
         const defaultDate = '2025-06-04';
-
+        const editError = document.getElementById('edit-error');
+        editError.classList.remove('active');
         if (amount <= 0) {
-            alert('Please enter a valid amount.');
+            editError.textContent = 'Please enter a valid amount.';
+            editError.classList.add('active');
             return;
         }
         if (!transactionDate || transactionDate === defaultDate) {
-            alert('Please select a transaction date (different from the default).');
+            editError.textContent = 'Please select a transaction date (different from the default).';
+            editError.classList.add('active');
             return;
         }
 
-        // Fetch the current expense to get its old amount
         const { data: currentExpense, error: fetchError } = await supabase
             .from('expenses')
             .select('amount')
@@ -304,7 +307,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             .eq('project_id', currentProject.id)
             .single();
         if (fetchError) {
-            alert('Failed to fetch expense details: ' + fetchError.message);
+            editError.textContent = 'Failed to fetch expense details: ' + fetchError.message;
+            editError.classList.add('active');
             return;
         }
 
@@ -312,7 +316,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const amountDifference = amount - oldAmount;
         const newHouseValue = (currentProject.house_value || 0) + amountDifference;
 
-        // Update the expense
         const { error: updateError } = await supabase
             .from('expenses')
             .update({
@@ -324,32 +327,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             .eq('requisition_id', requisitionId)
             .eq('project_id', currentProject.id);
         if (updateError) {
-            alert('Failed to update expense: ' + updateError.message);
+            editError.textContent = 'Failed to update expense: ' + updateError.message;
+            editError.classList.add('active');
             return;
         }
 
-        // Update the project's house_value
         const { error: projectUpdateError } = await supabase
             .from('projects')
             .update({ house_value: newHouseValue })
             .eq('id', currentProject.id);
         if (projectUpdateError) {
-            alert('Failed to update project value: ' + projectUpdateError.message);
+            editError.textContent = 'Failed to update project value: ' + projectUpdateError.message;
+            editError.classList.add('active');
             return;
         }
 
         currentProject.house_value = newHouseValue;
-        alert('Expense updated successfully!');
+        // Success handled by reload
         window.location.reload();
     });
 
-    // Cancel Edit functionality
     cancelEditBtn.addEventListener('click', () => {
+        const editModalOverlay = document.getElementById('editModalOverlay');
+        const expenseTable = document.getElementById('expenseTable');
         editModalOverlay.style.display = 'none';
         expenseTable.style.display = 'table';
     });
 
-    // Sidebar navigation
     const sidebarMenu = document.querySelector('.sidebar-menu');
     sidebarMenu.addEventListener('click', (e) => {
         const menuItem = e.target.closest('.menu-item');
@@ -364,26 +368,51 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Logout
     const logoutBtn = document.querySelector('.logout-btn');
     logoutBtn.addEventListener('click', async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            alert('Logout error: ' + error.message);
-        } else {
-            window.location.replace('../index.html');
+        const logoutError = document.getElementById('logout-error');
+        logoutError.classList.remove('active');
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                logoutError.textContent = 'Logout error: ' + error.message;
+                logoutError.classList.add('active');
+            } else {
+                window.location.replace('../LandingPage/index.html');
+            }
+        } catch (err) {
+            logoutError.textContent = 'Unexpected error during sign out: ' + err.message;
+            logoutError.classList.add('active');
         }
     });
 
-    // Hamburger menu
     const hamburger = document.querySelector('.hamburger');
     const sidebar = document.querySelector('.sidebar');
     hamburger.addEventListener('click', () => {
         sidebar.classList.toggle('active');
     });
+
     document.addEventListener('click', (e) => {
         if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && !hamburger.contains(e.target)) {
             sidebar.classList.remove('active');
         }
+    });
+
+    // Clear errors on focus
+    searchDate?.addEventListener('focus', () => {
+        const searchError = document.getElementById('search-error');
+        searchError.classList.remove('active');
+    });
+    editTransactionDate?.addEventListener('focus', () => {
+        const editError = document.getElementById('edit-error');
+        editError.classList.remove('active');
+    });
+    editExpenseAmount?.addEventListener('focus', () => {
+        const editError = document.getElementById('edit-error');
+        editError.classList.remove('active');
+    });
+    editExpenseDescription?.addEventListener('focus', () => {
+        const editError = document.getElementById('edit-error');
+        editError.classList.remove('active');
     });
 });

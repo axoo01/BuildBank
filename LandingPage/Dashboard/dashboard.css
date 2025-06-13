@@ -924,6 +924,16 @@ body {
     
 
 }
+.error-message {
+    color: #ff4d4d;
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
+    display: none; /* Hidden by default */
+}
+.error-message.active {
+    display: block; /* Show when active */
+}
 
 /* Animations */
 @keyframes fadeIn {

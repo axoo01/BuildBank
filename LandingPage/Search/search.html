@@ -25,6 +25,7 @@
         <div class="welcome">Welcome, ...!</div>
         <div class="user-actions">
             <button class="logout-btn">Logout</button>
+            <div id="logout-error" class="error-message"></div> <!-- New error for logout -->
         </div>
     </header>
 
@@ -37,49 +38,48 @@
 </div>
 
     <div class="search-section">
-        <!-- Existing content -->
-    </div>
-        <div class="search-section">
-            <div class="search-header">
-                <div class="search-bar">
-                    <input type="date" id="searchDate" required>
-                    <button id="searchBtn"><img src="../Dashboard/icons/loupe.png" alt="Search Icon" class="search-icon"></button>
-                    <button id="clearBtn">Clear</button>
-                </div>
-                <div class="action-buttons">
-                    <button id="printBtn">Print</button>
-                </div>
+        <div class="search-header">
+            <div class="search-bar">
+                <input type="date" id="searchDate" required>
+                <button id="searchBtn"><img src="../Dashboard/icons/loupe.png" alt="Search Icon" class="search-icon"></button>
+                <button id="clearBtn">Clear</button>
+                <div id="search-error" class="error-message"></div> <!-- New error for search -->
             </div>
-            <table class="expense-table" id="expenseTable">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Requisition ID</th>
-                        <th>Amount (RWF)</th>
-                        <th>Description</th>
-                        <th>User</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="expenseTableBody">
-                    <!-- Populated dynamically -->
-                </tbody>
-            </table>
+            <div class="action-buttons">
+                <button id="printBtn">Print</button>
+            </div>
         </div>
-        <!-- Replace the existing editExpenseForm section in search.html -->
-<div class="modal-overlay" id="editModalOverlay" style="display: none;">
-    <div class="modal-container">
-        <div class="expense-form" id="editExpenseForm" style="display: block;">
-            <h3>Edit Expense</h3>
-            <input type="hidden" id="editRequisitionId">
-            <input type="date" id="editTransactionDate" required>
-            <input type="number" id="editExpenseAmount" placeholder="Transaction Amount" min="0" required>
-            <input type="text" id="editExpenseDescription" placeholder="Expense Description" required>
-            <button type="button" id="updateExpenseBtn">Update Expense</button>
-            <button type="button" id="cancelEditBtn">Cancel</button>
+        <table class="expense-table" id="expenseTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Requisition ID</th>
+                    <th>Amount (RWF)</th>
+                    <th>Description</th>
+                    <th>User</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="expenseTableBody">
+                <!-- Populated dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal-overlay" id="editModalOverlay" style="display: none;">
+        <div class="modal-container">
+            <div class="expense-form" id="editExpenseForm" style="display: block;">
+                <h3>Edit Expense</h3>
+                <input type="hidden" id="editRequisitionId">
+                <input type="date" id="editTransactionDate" required>
+                <input type="number" id="editExpenseAmount" placeholder="Transaction Amount" min="0" required>
+                <input type="text" id="editExpenseDescription" placeholder="Expense Description" required>
+                <button type="button" id="updateExpenseBtn">Update Expense</button>
+                <button type="button" id="cancelEditBtn">Cancel</button>
+                <div id="edit-error" class="error-message"></div> <!-- New error for edit -->
+            </div>
         </div>
     </div>
-</div>
     </main>
 
     <script type="module" src="search.js"></script>

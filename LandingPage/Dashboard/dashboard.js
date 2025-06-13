@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addExpenseBtn = document.getElementById('addExpenseBtn');
     const expenseAmount = document.getElementById('expenseAmount');
     const expenseDescription = document.getElementById('expenseDescription');
+    const transactionDate = document.getElementById('transactionDate');
     const budgetLatestSection = document.querySelector('.budget-latest-section');
     const expenseTotalSection = document.querySelector('.expense-total-section');
     const chartSection = document.querySelector('.chart-section');
@@ -47,92 +48,97 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = '../index.html';
             return null;
         }
-        // Set the session for Supabase client to use authenticated requests
         await supabase.auth.setSession(session.access_token);
         const { data: { user } } = await supabase.auth.getUser();
         return user;
     }
 
-  async function initDashboard() {
-    const user = await checkAuth();
+    async function initDashboard() {
+        const user = await checkAuth();
 
-    // Fetch the user's name from the users table
-    const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('name')
-        .eq('id', user.id)
-        .single();
-
-    if (userError) {
-        alert('Failed to fetch user details: ' + userError.message);
-        return;
-    }
-
-    // Display the welcome message with capitalized name
-    const welcomeMessage = document.querySelector('.welcome');
-    if (welcomeMessage) {
-        const name = userData.name || 'User';
-        const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-        welcomeMessage.textContent = `Welcome, ${capitalizedName}!`;
-    }
-
-    // Check user's project membership
-    const { data: membershipData, error: membershipError } = await supabase
-        .from('project_members')
-        .select('project_id')
-        .eq('user_id', user.id);
-
-    if (membershipError) {
-        console.error('Membership fetch error:', membershipError);
-        alert('Failed to fetch membership details: ' + membershipError.message);
-        return;
-    }
-
-    if (membershipData.length === 0) {
-        projectSetup.style.display = 'block';
-    } else {
-        const projectId = membershipData[0].project_id;
-        const { data: projectData, error: projectError } = await supabase
-            .from('projects')
-            .select('id, name, house_value, invitation_code, invitation_code_expires_at')
-            .eq('id', projectId)
+        const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('name')
+            .eq('id', user.id)
             .single();
-        if (projectError) {
-            console.error('Project fetch error:', projectError);
-            alert('Failed to fetch project details: ' + projectError.message);
+
+        if (userError) {
+            const createError = document.getElementById('create-error');
+            createError.textContent = 'Failed to fetch user details: ' + userError.message;
+            createError.classList.add('active');
             return;
         }
-        currentProject = projectData;
-        projectSetup.style.display = 'none';
-        budgetCard.style.display = 'block';
-        expenseForm.style.display = 'block';
-        budgetLatestSection.style.display = 'flex';
-        expenseTotalSection.style.display = 'flex';
-        chartSection.style.display = 'flex';
-        latestEntryCard.style.display = 'block';
-        totalRecordsCard.style.display = 'block';
-        monthlyChartCard.style.display = 'block';
-        budgetCardTitle.textContent = `${currentProject.name} Value`;
-        await fetchExpenses(projectId);
-        updateBudgetCard(currentProject.house_value || 0);
-        updateOverviewCards();
-        initializeChart();
-        updateSettingsCode();
 
-        // Show settings tab if URL has #settings
-        if (window.location.hash === '#settings') {
-            setupSettings();
-            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-            const settingsItem = Array.from(document.querySelectorAll('.menu-item')).find(item => item.textContent.includes('Settings'));
-            if (settingsItem) settingsItem.classList.add('active');
+        const welcomeMessage = document.querySelector('.welcome');
+        if (welcomeMessage) {
+            const name = userData.name || 'User';
+            const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+            welcomeMessage.textContent = `Welcome, ${capitalizedName}!`;
+        }
+
+        const { data: membershipData, error: membershipError } = await supabase
+            .from('project_members')
+            .select('project_id')
+            .eq('user_id', user.id);
+
+        if (membershipError) {
+            const createError = document.getElementById('create-error');
+            createError.textContent = 'Failed to fetch membership details: ' + membershipError.message;
+            createError.classList.add('active');
+            return;
+        }
+
+        if (membershipData.length === 0) {
+            projectSetup.style.display = 'block';
+        } else {
+            const projectId = membershipData[0].project_id;
+            const { data: projectData, error: projectError } = await supabase
+                .from('projects')
+                .select('id, name, house_value, invitation_code, invitation_code_expires_at')
+                .eq('id', projectId)
+                .single();
+            if (projectError) {
+                const createError = document.getElementById('create-error');
+                createError.textContent = 'Failed to fetch project details: ' + projectError.message;
+                createError.classList.add('active');
+                return;
+            }
+            currentProject = projectData;
+            projectSetup.style.display = 'none';
+            budgetCard.style.display = 'block';
+            expenseForm.style.display = 'block';
+            budgetLatestSection.style.display = 'flex';
+            expenseTotalSection.style.display = 'flex';
+            chartSection.style.display = 'flex';
+            latestEntryCard.style.display = 'block';
+            totalRecordsCard.style.display = 'block';
+            monthlyChartCard.style.display = 'block';
+            budgetCardTitle.textContent = `${currentProject.name} Value`;
+            await fetchExpenses(projectId);
+            updateBudgetCard(currentProject.house_value || 0);
+            updateOverviewCards();
+            initializeChart();
+            updateSettingsCode();
+
+            if (window.location.hash === '#settings') {
+                setupSettings();
+                document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+                const settingsItem = Array.from(document.querySelectorAll('.menu-item')).find(item => item.textContent.includes('Settings'));
+                if (settingsItem) settingsItem.classList.add('active');
+            }
         }
     }
-}
-    // Event Listeners
- if (createProjectBtn) {
-    createProjectBtn.addEventListener('click', async () => {
-        const projectName = projectNameInput.value.trim();
-        if (projectName) {
+
+    if (createProjectBtn) {
+        createProjectBtn.addEventListener('click', async () => {
+            const projectName = projectNameInput.value.trim();
+            const createError = document.getElementById('create-error');
+            createError.classList.remove('active');
+            if (!projectName) {
+                createError.textContent = 'Please enter a project name.';
+                createError.classList.add('active');
+                return;
+            }
             const newCode = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
             const newExpiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000);
             const { data, error } = await supabase
@@ -146,8 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 .select('id, name, house_value, invitation_code, invitation_code_expires_at')
                 .single();
             if (error) {
-                console.error('Project creation error:', error); // Log full error
-                alert('Failed to create project: ' + error.message);
+                createError.textContent = 'Failed to create project: ' + error.message;
+                createError.classList.add('active');
             } else {
                 currentProject = data;
                 const user = await checkAuth();
@@ -157,8 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     role: 'admin'
                 });
                 if (membershipError) {
-                    console.error('Membership error:', membershipError);
-                    alert('Project created, but failed to add you as a member: ' + membershipError.message);
+                    createError.textContent = 'Project created, but failed to add you as a member: ' + membershipError.message;
+                    createError.classList.add('active');
                 } else {
                     projectSetup.style.display = 'none';
                     budgetCard.style.display = 'block';
@@ -177,77 +183,84 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateSettingsCode();
                 }
             }
-        } else {
-            alert('Please enter a project name.');
-        }
-    });
-}
+        });
+    }
 
     if (joinProjectBtn) {
         joinProjectBtn.addEventListener('click', async () => {
             const joinCode = joinCodeInput.value.trim();
-            if (joinCode) {
-                const { data: projectData, error: projectError } = await supabase
-                    .from('projects')
-                    .select('id, name, house_value, invitation_code, invitation_code_expires_at')
-                    .eq('invitation_code', joinCode)
-                    .maybeSingle();
-                if (projectError) {
-                    alert('Failed to fetch project: ' + projectError.message);
-                    return;
-                }
-                if (!projectData) {
-                    alert('Invalid invitation code.');
-                    return;
-                }
-                if (new Date(projectData.invitation_code_expires_at) < new Date()) {
-                    alert('Invitation code has expired.');
-                    return;
-                }
-                const user = await checkAuth();
-                const { error } = await supabase.from('project_members').insert({
-                    project_id: projectData.id,
-                    user_id: user.id,
-                    role: 'member'
-                });
-                if (error) {
-                    alert('Failed to join project: ' + error.message);
-                } else {
-                    currentProject = projectData;
-                    projectSetup.style.display = 'none';
-                    budgetCard.style.display = 'block';
-                    expenseForm.style.display = 'block';
-                    budgetLatestSection.style.display = 'flex';
-                    expenseTotalSection.style.display = 'flex';
-                    chartSection.style.display = 'flex';
-                    latestEntryCard.style.display = 'block';
-                    totalRecordsCard.style.display = 'block';
-                    monthlyChartCard.style.display = 'block';
-                    budgetCardTitle.textContent = `${currentProject.name} Value`;
-                    await fetchExpenses(currentProject.id);
-                    updateBudgetCard(currentProject.house_value || 0);
-                    updateOverviewCards();
-                    initializeChart();
-                    updateSettingsCode();
-                }
+            const joinError = document.getElementById('join-error');
+            joinError.classList.remove('active');
+            if (!joinCode) {
+                joinError.textContent = 'Please enter an invitation code.';
+                joinError.classList.add('active');
+                return;
+            }
+            const { data: projectData, error: projectError } = await supabase
+                .from('projects')
+                .select('id, name, house_value, invitation_code, invitation_code_expires_at')
+                .eq('invitation_code', joinCode)
+                .maybeSingle();
+            if (projectError) {
+                joinError.textContent = 'Failed to fetch project: ' + projectError.message;
+                joinError.classList.add('active');
+                return;
+            }
+            if (!projectData) {
+                joinError.textContent = 'Invalid invitation code.';
+                joinError.classList.add('active');
+                return;
+            }
+            if (new Date(projectData.invitation_code_expires_at) < new Date()) {
+                joinError.textContent = 'Invitation code has expired.';
+                joinError.classList.add('active');
+                return;
+            }
+            const user = await checkAuth();
+            const { error } = await supabase.from('project_members').insert({
+                project_id: projectData.id,
+                user_id: user.id,
+                role: 'member'
+            });
+            if (error) {
+                joinError.textContent = 'Failed to join project: ' + error.message;
+                joinError.classList.add('active');
             } else {
-                alert('Please enter an invitation code.');
+                currentProject = projectData;
+                projectSetup.style.display = 'none';
+                budgetCard.style.display = 'block';
+                expenseForm.style.display = 'block';
+                budgetLatestSection.style.display = 'flex';
+                expenseTotalSection.style.display = 'flex';
+                chartSection.style.display = 'flex';
+                latestEntryCard.style.display = 'block';
+                totalRecordsCard.style.display = 'block';
+                monthlyChartCard.style.display = 'block';
+                budgetCardTitle.textContent = `${currentProject.name} Value`;
+                await fetchExpenses(currentProject.id);
+                updateBudgetCard(currentProject.house_value || 0);
+                updateOverviewCards();
+                initializeChart();
+                updateSettingsCode();
             }
         });
     }
 
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
+            const logoutError = document.getElementById('logout-error');
+            logoutError.classList.remove('active');
             try {
                 const { error } = await supabase.auth.signOut();
                 if (error) {
-                    alert('Logout error: ' + error.message);
+                    logoutError.textContent = 'Logout error: ' + error.message;
+                    logoutError.classList.add('active');
                 } else {
                     window.location.replace('../index.html');
                 }
             } catch (err) {
-                console.log('Unexpected error during sign out:', err);
-                alert('Unexpected error: ' + err.message);
+                logoutError.textContent = 'Unexpected error during sign out: ' + err.message;
+                logoutError.classList.add('active');
             }
         });
     }
@@ -257,6 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sidebar.classList.toggle('active');
         }, { capture: true });
     }
+
     document.addEventListener('click', (e) => {
         if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && !hamburger.contains(e.target)) {
             sidebar.classList.remove('active');
@@ -264,76 +278,83 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (addExpenseBtn) {
-    addExpenseBtn.addEventListener('click', async () => {
-        const amount = parseInt(expenseAmount.value) || 0;
-        const description = expenseDescription.value || `Expense on ${new Date().toISOString()}`;
-        const transactionDate = document.getElementById('transactionDate').value;
-        const defaultDate = '2025-06-04';
-
-        if (amount <= 0) {
-            alert('Please enter a valid amount.');
-            return;
-        }
-        if (!transactionDate || transactionDate === defaultDate) {
-            alert('Please select a transaction date (different from the default).');
-            return;
-        }
-        if (!currentProject) {
-            alert('Please create or join a project first.');
-            return;
-        }
-        const user = await checkAuth();
-
-        const date = new Date(transactionDate);
-        const year = date.getFullYear().toString().slice(-2);
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const dateStr = `${year}${month}${day}`;
-
-        const { data: sameDayExpenses, error: countError } = await supabase
-            .from('expenses')
-            .select('requisition_id')
-            .eq('project_id', currentProject.id)
-            .eq('transaction_date', transactionDate);
-        if (countError) {
-            alert('Failed to generate requisition ID: ' + countError.message);
-            return;
-        }
-        const count = sameDayExpenses.length + 1;
-        const sequence = String(count).padStart(3, '0');
-        const requisitionId = `REQ-${dateStr}-${sequence}`;
-
-        const newHouseValue = (currentProject.house_value || 0) + amount;
-        const { error } = await supabase.from('expenses').insert({
-            requisition_id: requisitionId,
-            project_id: currentProject.id,
-            user_id: user.id,
-            amount: amount,
-            description: description,
-            transaction_date: transactionDate
-        });
-        if (error) {
-            alert('Failed to add expense: ' + error.message);
-        } else {
-            const { error: updateError } = await supabase
-                .from('projects')
-                .update({ house_value: newHouseValue })
-                .eq('id', currentProject.id);
-            if (updateError) {
-                alert('Failed to update project value: ' + updateError.message);
-            } else {
-                currentProject.house_value = newHouseValue;
-                await fetchExpenses(currentProject.id);
-                updateBudgetCard(currentProject.house_value);
-                updateOverviewCards();
-                initializeChart();
-                expenseAmount.value = '';
-                expenseDescription.value = '';
-                document.getElementById('transactionDate').value = '2025-06-04';
+        addExpenseBtn.addEventListener('click', async () => {
+            const amount = parseInt(expenseAmount.value) || 0;
+            const description = expenseDescription.value || `Expense on ${new Date().toISOString()}`;
+            const transactionDate = document.getElementById('transactionDate').value;
+            const defaultDate = '2025-06-04';
+            const expenseError = document.getElementById('expense-error');
+            expenseError.classList.remove('active');
+            if (amount <= 0) {
+                expenseError.textContent = 'Please enter a valid amount.';
+                expenseError.classList.add('active');
+                return;
             }
-        }
-    });
-}
+            if (!transactionDate || transactionDate === defaultDate) {
+                expenseError.textContent = 'Please select a transaction date (different from the default).';
+                expenseError.classList.add('active');
+                return;
+            }
+            if (!currentProject) {
+                expenseError.textContent = 'Please create or join a project first.';
+                expenseError.classList.add('active');
+                return;
+            }
+            const user = await checkAuth();
+
+            const date = new Date(transactionDate);
+            const year = date.getFullYear().toString().slice(-2);
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const dateStr = `${year}${month}${day}`;
+
+            const { data: sameDayExpenses, error: countError } = await supabase
+                .from('expenses')
+                .select('requisition_id')
+                .eq('project_id', currentProject.id)
+                .eq('transaction_date', transactionDate);
+            if (countError) {
+                expenseError.textContent = 'Failed to generate requisition ID: ' + countError.message;
+                expenseError.classList.add('active');
+                return;
+            }
+            const count = sameDayExpenses.length + 1;
+            const sequence = String(count).padStart(3, '0');
+            const requisitionId = `REQ-${dateStr}-${sequence}`;
+
+            const newHouseValue = (currentProject.house_value || 0) + amount;
+            const { error } = await supabase.from('expenses').insert({
+                requisition_id: requisitionId,
+                project_id: currentProject.id,
+                user_id: user.id,
+                amount: amount,
+                description: description,
+                transaction_date: transactionDate
+            });
+            if (error) {
+                expenseError.textContent = 'Failed to add expense: ' + error.message;
+                expenseError.classList.add('active');
+            } else {
+                const { error: updateError } = await supabase
+                    .from('projects')
+                    .update({ house_value: newHouseValue })
+                    .eq('id', currentProject.id);
+                if (updateError) {
+                    expenseError.textContent = 'Failed to update project value: ' + updateError.message;
+                    expenseError.classList.add('active');
+                } else {
+                    currentProject.house_value = newHouseValue;
+                    await fetchExpenses(currentProject.id);
+                    updateBudgetCard(currentProject.house_value);
+                    updateOverviewCards();
+                    initializeChart();
+                    expenseAmount.value = '';
+                    expenseDescription.value = '';
+                    transactionDate.value = '2025-06-04';
+                }
+            }
+        });
+    }
 
     if (sidebarMenu) {
         sidebarMenu.addEventListener('click', (e) => {
@@ -370,7 +391,9 @@ document.addEventListener('DOMContentLoaded', () => {
             .select('*')
             .eq('project_id', projectId);
         if (error) {
-            console.error('Error fetching expenses:', error);
+            const expenseError = document.getElementById('expense-error');
+            expenseError.textContent = 'Error fetching expenses: ' + error.message;
+            expenseError.classList.add('active');
             return;
         }
         expenses = data.map(exp => ({
@@ -503,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateSettingsCode() {
         if (currentProject && invitationCodeDisplay && copyCodeBtn && codeStatus && generateNewCodeBtn) {
-            invitationCodeDisplay.textContent = currentProject.invitation_code || 'No code available';
+            invitationCodeDisplay.textContent = currentProject.invitation_code || 'Loading...';
             const isExpired = currentProject.invitation_code_expires_at && new Date(currentProject.invitation_code_expires_at) < new Date();
             let buttonGroup = document.querySelector('.button-group');
             
@@ -534,10 +557,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             copyCodeBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(currentProject.invitation_code).then(() => {
-                    alert('Code copied to clipboard!');
+                    // Success handled by UI
                 }).catch(err => {
-                    console.error('Failed to copy code:', err);
-                    alert('Failed to copy code.');
+                    alert('Failed to copy code: ' + err.message);
                 });
             });
 
@@ -557,11 +579,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentProject.invitation_code = newCode;
                     currentProject.invitation_code_expires_at = newExpiresAt;
                     updateSettingsCode();
-                    alert('New code generated!');
+                    // Success handled by UI
                 }
             });
         }
     }
+
+    // Clear errors on focus
+    projectNameInput?.addEventListener('focus', () => {
+        document.getElementById('create-error').classList.remove('active');
+    });
+    joinCodeInput?.addEventListener('focus', () => {
+        document.getElementById('join-error').classList.remove('active');
+    });
+    expenseAmount?.addEventListener('focus', () => {
+        document.getElementById('expense-error').classList.remove('active');
+    });
+    expenseDescription?.addEventListener('focus', () => {
+        document.getElementById('expense-error').classList.remove('active');
+    });
+    transactionDate?.addEventListener('focus', () => {
+        document.getElementById('expense-error').classList.remove('active');
+    });
 
     // Initialize the dashboard
     initDashboard();
