@@ -5,6 +5,9 @@ const supabase = createClient('https://smcyqxylufjgkmumhonk.supabase.co', 'eyJhb
 let expenses = [];
 let currentProject = null;
 let monthlyChart;
+const appState = {
+    projects: []
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM fully loaded');
@@ -86,6 +89,16 @@ document.addEventListener('DOMContentLoaded', () => {
             createError.textContent = 'Failed to fetch membership details: ' + membershipError.message;
             createError.classList.add('active');
             return;
+        }
+
+        // Cache all projects
+        const { data: allProjects, error: projectsError } = await supabase
+            .from('projects')
+            .select('id, name');
+        if (projectsError) {
+            console.error('Failed to fetch projects: ' + projectsError.message);
+        } else {
+            appState.projects = allProjects;
         }
 
         if (membershipData.length === 0) {
@@ -181,6 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateOverviewCards();
                     initializeChart();
                     updateSettingsCode();
+                    // Update cache
+                    appState.projects.push(currentProject);
                 }
             }
         });
@@ -242,28 +257,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateOverviewCards();
                 initializeChart();
                 updateSettingsCode();
+                // Update cache
+                if (!appState.projects.find(p => p.id === currentProject.id)) {
+                    appState.projects.push(currentProject);
+                }
             }
         });
     }
 
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            const logoutError = document.getElementById('logout-error');
-            logoutError.classList.remove('active');
-            try {
-                const { error } = await supabase.auth.signOut();
-                if (error) {
-                    logoutError.textContent = 'Logout error: ' + error.message;
-                    logoutError.classList.add('active');
-                } else {
-                    window.location.replace('../index.html');
-                }
-            } catch (err) {
-                logoutError.textContent = 'Unexpected error during sign out: ' + err.message;
+    logoutBtn.addEventListener('click', async () => {
+        const logoutError = document.getElementById('logout-error');
+        logoutError.classList.remove('active');
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                logoutError.textContent = 'Logout error: ' + error.message;
                 logoutError.classList.add('active');
+            } else {
+                // Ensure correct relative path
+                window.location.replace('../index.html'); // Absolute path from root
             }
-        });
-    }
+        } catch (err) {
+            logoutError.textContent = 'Unexpected error during sign out: ' + err.message;
+            logoutError.classList.add('active');
+        }
+    });
+}
 
     if (hamburger) {
         hamburger.addEventListener('click', () => {
@@ -308,6 +328,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const day = String(date.getDate()).padStart(2, '0');
             const dateStr = `${year}${month}${day}`;
 
+            // Determine prefix from cached projects
+            const basePrefix = currentProject.name.slice(0, 3).toUpperCase().padEnd(3, currentProject.name[2] || 'X');
+            const duplicateProjects = appState.projects.filter(p => p.name.slice(0, 3).toUpperCase() === basePrefix);
+            let prefix = basePrefix;
+            if (duplicateProjects.length > 1) {
+                const currentIndex = duplicateProjects.findIndex(p => p.id === currentProject.id);
+                prefix = `${basePrefix}${currentIndex + 1}`;
+            }
+
+            // Fetch existing expenses for the project on the same date
             const { data: sameDayExpenses, error: countError } = await supabase
                 .from('expenses')
                 .select('requisition_id')
@@ -320,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const count = sameDayExpenses.length + 1;
             const sequence = String(count).padStart(3, '0');
-            const requisitionId = `REQ-${dateStr}-${sequence}`;
+            const requisitionId = `${prefix}-${dateStr}-${sequence}`;
 
             const newHouseValue = (currentProject.house_value || 0) + amount;
             const { error } = await supabase.from('expenses').insert({
@@ -519,6 +549,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     expenseTotalSection.style.display = 'none';
                     chartSection.style.display = 'none';
                     settingsTab.style.display = 'none';
+                    // Update cache
+                    appState.projects = appState.projects.filter(p => p.id !== currentProject.id);
                 }
             }
         });

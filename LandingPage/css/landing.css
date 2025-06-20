@@ -502,7 +502,7 @@ body {
 /* ----- Landing Page: Mobile Responsiveness for Navigation ----- */
 @media (max-width: 768px) {
 .nav-container {
-        background: linear-gradient(to right, rgba(4, 20, 23, 0.6), rgba(4, 20, 23, 0.2));
+        background: linear-gradient(to right, rgba(4, 20, 23, 0.4), rgba(4, 20, 23, 0.1));
     }
 
     .nav-links {

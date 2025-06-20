@@ -97,20 +97,30 @@ async function renderExpenses() {
                 const editError = document.getElementById('edit-error');
                 editError.classList.remove('active');
                 if (confirm('Are you sure you want to delete this expense?')) {
+                    const user = await checkAuth();
+                    const { data: expenseData, error: fetchError } = await supabase
+                        .from('expenses')
+                        .select('user_id')
+                        .eq('requisition_id', exp.requisition_id)
+                        .eq('project_id', currentProject.id)
+                        .single();
+                    if (fetchError) {
+                        alert('Failed to check expense ownership: ' + fetchError.message);
+                        return;
+                    }
+                    if (expenseData.user_id !== user.id) {
+                        alert('Only the creator can delete this record!'); // Changed to alert
+                        return;
+                    }
                     const { data, error } = await supabase
                         .from('expenses')
                         .delete()
                         .eq('requisition_id', exp.requisition_id)
                         .eq('project_id', currentProject.id);
-                    if (error || !data || data.length === 0) {
-                        if (error && (error.code === '42501' || error.message.toLowerCase().includes('permission denied'))) {
-                            editError.textContent = 'Only the creator can delete this record!';
-                        } else {
-                            editError.textContent = 'Failed to delete expense: ' + (error ? error.message : 'Only the creator can delete this record!');
-                        }
-                        editError.classList.add('active');
+                    if (error) {
+                        alert('Failed to delete expense: ' + error.message);
                     } else {
-                        // Success handled by reload
+                        // Refresh the page to show updated information
                         window.location.reload();
                     }
                 }
