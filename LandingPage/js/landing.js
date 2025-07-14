@@ -6,6 +6,9 @@ let signupModal, loginModal, forgotPasswordModal;
 
 async function signUpUser(email, password, name) {
     const signupError = document.getElementById('signup-error');
+    const signupName = document.getElementById('signupName');
+    const signupEmail = document.getElementById('signupEmail');
+    const signupPassword = document.getElementById('signupPassword');
     try {
         // Validate inputs
         if (!name || !email || !password) {
@@ -18,7 +21,8 @@ async function signUpUser(email, password, name) {
             email,
             password,
             options: {
-                data: { name }
+                data: { name },
+                emailRedirectTo: 'http://buildbank.netlify.app/LandingPage/index.html' // Base URL, no parameter
             }
         });
         if (error) {
@@ -28,10 +32,15 @@ async function signUpUser(email, password, name) {
         }
 
         if (!data.user) {
-            signupError.textContent = 'Signup successful, but user data not available. Please confirm your email and log in.';
-            signupError.classList.add('active');
+            signupError.textContent = 'Signup successful! Please check your email to verify your account.';
+            signupError.classList.remove('active');
+            signupError.classList.add('success');
+            // Clear input fields
+            signupName.value = '';
+            signupEmail.value = '';
+            signupPassword.value = '';
             signupModal.style.display = 'none';
-            loginModal.style.display = 'flex';
+            loginModal.style.display = 'flex'; // Open login modal with message
             return;
         }
 
@@ -50,9 +59,15 @@ async function signUpUser(email, password, name) {
             throw insertError;
         }
 
-        // Remove success alert, redirect to login
+        signupError.textContent = 'Signup successful! Please check your email to verify your account.';
+        signupError.classList.remove('active');
+        signupError.classList.add('success');
+        // Clear input fields
+        signupName.value = '';
+        signupEmail.value = '';
+        signupPassword.value = '';
         signupModal.style.display = 'none';
-        loginModal.style.display = 'flex';
+        loginModal.style.display = 'flex'; // Open login modal with message
     } catch (err) {
         signupError.textContent = 'Unexpected error: ' + err.message;
         signupError.classList.add('active');
@@ -61,8 +76,9 @@ async function signUpUser(email, password, name) {
 
 async function loginUser(email, password) {
     const loginError = document.getElementById('login-error');
+    const loginEmail = document.getElementById('loginEmail');
+    const loginPassword = document.getElementById('loginPassword');
     try {
-        // Validate inputs
         if (!email || !password) {
             loginError.textContent = 'Please enter both email and password to login.';
             loginError.classList.add('active');
@@ -71,7 +87,9 @@ async function loginUser(email, password) {
 
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
-            if (error.message.includes('Invalid login credentials') || error.status === 400) {
+            if (error.message.includes('Email not confirmed')) {
+                loginError.textContent = 'Signup successful! Please confirm your email to log in.';
+            } else if (error.message.includes('Invalid login credentials') || error.status === 400) {
                 const { data: userExists } = await supabase
                     .from('users')
                     .select('email')
@@ -88,6 +106,9 @@ async function loginUser(email, password) {
             loginError.classList.add('active');
         } else {
             window.location.href = '/Dashboard/dashboard.html';
+            // Clear input fields on success
+            loginEmail.value = '';
+            loginPassword.value = '';
         }
     } catch (err) {
         loginError.textContent = 'Unexpected error: ' + err.message;
@@ -106,7 +127,7 @@ async function resetPassword(email) {
         }
 
         const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: 'https://buildbank.netlify.app//LandingPage/reset-password.html'
+            redirectTo: 'http://localhost:3000/LandingPage/index.html?showLogin=true'
         });
         if (error) {
             forgotError.textContent = 'Error sending reset link: ' + error.message;
@@ -180,7 +201,6 @@ document.getElementById('forgotEmail')?.addEventListener('focus', () => {
     forgotError.classList.remove('active');
 });
 
-
 document.addEventListener('DOMContentLoaded', () => {
     signupModal = document.querySelector('#signup-modal');
     loginModal = document.querySelector('#login-modal');
@@ -192,6 +212,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const backToLoginLink = document.querySelector('.back-to-login');
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
+    const loginError = document.getElementById('login-error');
+
+    // Check auth state on load
+    supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session && session.user.email_confirmed_at) {
+            loginError.textContent = 'Now you can log in.';
+            loginError.classList.remove('active');
+            loginError.classList.add('success');
+        } else if (loginError.textContent === '') {
+            loginError.textContent = 'Signup successful! Please confirm your email to log in.';
+            loginError.classList.add('active');
+        }
+    });
+
+    // Check for redirect parameter and show login modal
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('showLogin') === 'true') {
+        const signupMessage = document.getElementById('signup-message');
+        if (signupMessage) {
+            signupMessage.style.display = 'block';
+            setTimeout(() => signupMessage.style.display = 'none', 5000);
+        }
+        if (loginModal) {
+            loginModal.style.display = 'flex';
+            window.history.replaceState({}, document.title, window.location.pathname); // Clear query param
+        }
+    }
 
     if (getStartedBtn) {
         getStartedBtn.addEventListener('click', (e) => {
@@ -299,7 +346,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (navLink) navLink.classList.add('active');
         const tabButton = document.querySelector(`.tab-btn[onclick="showTab('${tabId}')"]`);
         if (tabButton) tabButton.classList.add('active');
-        if (button) button.classList.add('active');
         if (selectedContent) {
             selectedContent.scrollIntoView({ behavior: 'smooth' });
         }

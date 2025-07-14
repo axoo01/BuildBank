@@ -57,91 +57,91 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function initDashboard() {
-        const user = await checkAuth();
+    const user = await checkAuth();
 
-        const { data: userData, error: userError } = await supabase
-            .from('users')
-            .select('name')
-            .eq('id', user.id)
-            .single();
+    const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('name')
+        .eq('id', user.id)
+        .single();
 
-        if (userError) {
-            const createError = document.getElementById('create-error');
-            createError.textContent = 'Failed to fetch user details: ' + userError.message;
-            createError.classList.add('active');
-            return;
-        }
-
-        const welcomeMessage = document.querySelector('.welcome');
-        if (welcomeMessage) {
-            const name = userData.name || 'User';
-            const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-            welcomeMessage.textContent = `Welcome, ${capitalizedName}!`;
-        }
-
-        const { data: membershipData, error: membershipError } = await supabase
-            .from('project_members')
-            .select('project_id')
-            .eq('user_id', user.id);
-
-        if (membershipError) {
-            const createError = document.getElementById('create-error');
-            createError.textContent = 'Failed to fetch membership details: ' + membershipError.message;
-            createError.classList.add('active');
-            return;
-        }
-
-        // Cache all projects
-        const { data: allProjects, error: projectsError } = await supabase
-            .from('projects')
-            .select('id, name');
-        if (projectsError) {
-            console.error('Failed to fetch projects: ' + projectsError.message);
-        } else {
-            appState.projects = allProjects;
-        }
-
-        if (membershipData.length === 0) {
-            projectSetup.style.display = 'block';
-        } else {
-            const projectId = membershipData[0].project_id;
-            const { data: projectData, error: projectError } = await supabase
-                .from('projects')
-                .select('id, name, house_value, invitation_code, invitation_code_expires_at')
-                .eq('id', projectId)
-                .single();
-            if (projectError) {
-                const createError = document.getElementById('create-error');
-                createError.textContent = 'Failed to fetch project details: ' + projectError.message;
-                createError.classList.add('active');
-                return;
-            }
-            currentProject = projectData;
-            projectSetup.style.display = 'none';
-            budgetCard.style.display = 'block';
-            expenseForm.style.display = 'block';
-            budgetLatestSection.style.display = 'flex';
-            expenseTotalSection.style.display = 'flex';
-            chartSection.style.display = 'flex';
-            latestEntryCard.style.display = 'block';
-            totalRecordsCard.style.display = 'block';
-            monthlyChartCard.style.display = 'block';
-            budgetCardTitle.textContent = `${currentProject.name} Value`;
-            await fetchExpenses(projectId);
-            updateBudgetCard(currentProject.house_value || 0);
-            updateOverviewCards();
-            initializeChart();
-            updateSettingsCode();
-
-            if (window.location.hash === '#settings') {
-                setupSettings();
-                document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-                const settingsItem = Array.from(document.querySelectorAll('.menu-item')).find(item => item.textContent.includes('Settings'));
-                if (settingsItem) settingsItem.classList.add('active');
-            }
-        }
+    if (userError) {
+        const createError = document.getElementById('create-error');
+        createError.textContent = 'Failed to fetch user details: ' + userError.message;
+        createError.classList.add('active');
+        return;
     }
 
+    const welcomeMessage = document.querySelector('.welcome');
+    if (welcomeMessage) {
+        const name = userData.name || 'User';
+        const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+        welcomeMessage.textContent = `Welcome, ${capitalizedName}!`;
+    }
+
+    const { data: membershipData, error: membershipError } = await supabase
+        .from('project_members')
+        .select('project_id')
+        .eq('user_id', user.id);
+
+    if (membershipError) {
+        const createError = document.getElementById('create-error');
+        createError.textContent = 'Failed to fetch membership details: ' + membershipError.message;
+        createError.classList.add('active');
+        return;
+    }
+
+    // Cache all projects
+    const { data: allProjects, error: projectsError } = await supabase
+        .from('projects')
+        .select('id, name');
+    if (projectsError) {
+        console.error('Failed to fetch projects: ' + projectsError.message);
+    } else {
+        appState.projects = allProjects;
+    }
+
+    // Show project setup if no membership
+    if (membershipData.length === 0) {
+        projectSetup.style.display = 'block';
+    } else {
+        const projectId = membershipData[0].project_id;
+        const { data: projectData, error: projectError } = await supabase
+            .from('projects')
+            .select('id, name, house_value, invitation_code, invitation_code_expires_at')
+            .eq('id', projectId)
+            .single();
+        if (projectError) {
+            const createError = document.getElementById('create-error');
+            createError.textContent = 'Failed to fetch project details: ' + projectError.message;
+            createError.classList.add('active');
+            return;
+        }
+        currentProject = projectData;
+        projectSetup.style.display = 'none';
+        budgetCard.style.display = 'block';
+        expenseForm.style.display = 'block';
+        budgetLatestSection.style.display = 'flex';
+        expenseTotalSection.style.display = 'flex';
+        chartSection.style.display = 'flex';
+        latestEntryCard.style.display = 'block';
+        totalRecordsCard.style.display = 'block';
+        monthlyChartCard.style.display = 'block';
+        budgetCardTitle.textContent = `${currentProject.name} Value`;
+        await fetchExpenses(projectId);
+        updateBudgetCard(currentProject.house_value || 0);
+        updateOverviewCards();
+        initializeChart();
+        updateSettingsCode();
+
+        if (window.location.hash === '#settings') {
+            setupSettings();
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            const settingsItem = Array.from(document.querySelectorAll('.menu-item')).find(item => item.textContent.includes('Settings'));
+            if (settingsItem) settingsItem.classList.add('active');
+        }
+    }
+}
     if (createProjectBtn) {
         createProjectBtn.addEventListener('click', async () => {
             const projectName = projectNameInput.value.trim();
@@ -387,33 +387,70 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (sidebarMenu) {
-        sidebarMenu.addEventListener('click', (e) => {
-            const menuItem = e.target.closest('.menu-item');
-            if (menuItem) {
-                document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-                menuItem.classList.add('active');
-                if (menuItem.textContent.includes('Settings')) {
-                    setupSettings();
-                } else {
+    sidebarMenu.addEventListener('click', async (e) => {
+        const menuItem = e.target.closest('.menu-item');
+        if (menuItem) {
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            menuItem.classList.add('active');
+            const link = menuItem.querySelector('a');
+            if (link) e.preventDefault(); // Prevent default navigation for all links
+
+            const user = await checkAuth();
+            const { data: membershipData } = await supabase
+                .from('project_members')
+                .select('project_id')
+                .eq('user_id', user.id);
+
+            if (menuItem.textContent.includes('Settings')) {
+                if (membershipData.length === 0) {
+                    const createError = document.getElementById('create-error');
+                    createError.textContent = 'You can only view settings after joining or creating a project.';
+                    createError.classList.add('active');
+                    return;
+                }
+                setupSettings();
+            } else if (menuItem.textContent.includes('Search Expenses')) {
+                if (membershipData.length === 0) {
+                    const createError = document.getElementById('create-error');
+                    createError.textContent = 'You cannot search expenses until you have joined or created a project.';
+                    createError.classList.add('active');
+                    return;
+                }
+                window.location.href = link.href;
+            } else if (menuItem.textContent.includes('Dashboard')) {
+                if (membershipData.length === 0) {
+                    const createError = document.getElementById('create-error');
+                    createError.textContent = 'You can only view the dashboard after joining or creating a project.';
+                    createError.classList.add('active');
+                    // Hide dashboard content
+                    budgetLatestSection.style.display = 'none';
+                    expenseTotalSection.style.display = 'none';
+                    chartSection.style.display = 'none';
+                    budgetCard.style.display = 'none';
+                    expenseForm.style.display = 'none';
+                    latestEntryCard.style.display = 'none';
+                    totalRecordsCard.style.display = 'none';
+                    monthlyChartCard.style.display = 'none';
                     settingsTab.style.display = 'none';
-                    if (menuItem.textContent.includes('Dashboard')) {
-                        budgetLatestSection.style.display = 'flex';
-                        expenseTotalSection.style.display = 'flex';
-                        chartSection.style.display = 'flex';
-                        budgetCard.style.display = 'block';
-                        expenseForm.style.display = 'block';
-                        latestEntryCard.style.display = 'block';
-                        totalRecordsCard.style.display = 'block';
-                        monthlyChartCard.style.display = 'block';
-                    }
+                    return;
                 }
-                const isMobile = window.matchMedia("(max-width: 768px)").matches;
-                if (isMobile) {
-                    sidebar.classList.remove('active');
-                }
+                budgetLatestSection.style.display = 'flex';
+                expenseTotalSection.style.display = 'flex';
+                chartSection.style.display = 'flex';
+                budgetCard.style.display = 'block';
+                expenseForm.style.display = 'block';
+                latestEntryCard.style.display = 'block';
+                totalRecordsCard.style.display = 'block';
+                monthlyChartCard.style.display = 'block';
+                settingsTab.style.display = 'none';
             }
-        });
-    }
+            const isMobile = window.matchMedia("(max-width: 768px)").matches;
+            if (isMobile) {
+                sidebar.classList.remove('active');
+            }
+        }
+    });
+}
 
     async function fetchExpenses(projectId) {
         const { data, error } = await supabase
