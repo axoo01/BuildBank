@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 logoutError.textContent = 'Logout error: ' + error.message;
                 logoutError.classList.add('active');
             } else {
-                window.location.replace('../LandingPage/index.html');
+                window.location.replace('../index.html');
             }
         } catch (err) {
             logoutError.textContent = 'Unexpected error during sign out: ' + err.message;
