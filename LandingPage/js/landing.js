@@ -13,22 +13,24 @@ async function signUpUser(email, password, name) {
         // Validate inputs
         if (!name || !email || !password) {
             signupError.textContent = 'Please enter name, email, and password to sign up.';
+            signupError.classList.remove('success');
             signupError.classList.add('active');
             return;
         }
 
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error: authError } = await supabase.auth.signUp({
             email,
             password,
             options: {
                 data: { name },
-                emailRedirectTo: 'http://buildbank.netlify.app/LandingPage/index.html' // Base URL, no parameter
+                emailRedirectTo: 'http://buildbank.netlify.app/LandingPage/index.html'
             }
         });
-        if (error) {
-            signupError.textContent = 'Signup error: ' + error.message;
+        if (authError) {
+            signupError.textContent = 'Signup error: An unexpected issue occurred. Please try again.';
+            signupError.classList.remove('success');
             signupError.classList.add('active');
-            throw error;
+            throw authError;
         }
 
         if (!data.user) {
@@ -39,8 +41,8 @@ async function signUpUser(email, password, name) {
             signupName.value = '';
             signupEmail.value = '';
             signupPassword.value = '';
-            signupModal.style.display = 'none';
-            loginModal.style.display = 'flex'; // Open login modal with message
+            // Keep signup modal open for 1 minute, then close
+            setTimeout(() => signupModal.style.display = 'none', 20000);
             return;
         }
 
@@ -54,8 +56,15 @@ async function signUpUser(email, password, name) {
             });
 
         if (insertError) {
-            signupError.textContent = 'Failed to save user details: ' + insertError.message;
-            signupError.classList.add('active');
+            if (insertError.status === 409) {
+                signupError.textContent = 'This user is already registered.';
+                signupError.classList.remove('success');
+                signupError.classList.add('active');
+            } else {
+                signupError.textContent = 'Failed to save user details: An unexpected issue occurred. Please try again.';
+                signupError.classList.remove('success');
+                signupError.classList.add('active');
+            }
             throw insertError;
         }
 
@@ -66,10 +75,11 @@ async function signUpUser(email, password, name) {
         signupName.value = '';
         signupEmail.value = '';
         signupPassword.value = '';
-        signupModal.style.display = 'none';
-        loginModal.style.display = 'flex'; // Open login modal with message
+        // Keep signup modal open for 1 minute, then close
+        setTimeout(() => signupModal.style.display = 'none', 60000);
     } catch (err) {
-        signupError.textContent = 'Unexpected error: ' + err.message;
+        signupError.textContent = 'This user is already registered.';
+        signupError.classList.remove('success');
         signupError.classList.add('active');
     }
 }
@@ -105,7 +115,7 @@ async function loginUser(email, password) {
             }
             loginError.classList.add('active');
         } else {
-            window.location.href = '/Dashboard/dashboard.html';
+            window.location.href = 'Dashboard/dashboard.html';
             // Clear input fields on success
             loginEmail.value = '';
             loginPassword.value = '';
@@ -127,7 +137,7 @@ async function resetPassword(email) {
         }
 
         const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: 'http://localhost:3000/LandingPage/index.html?showLogin=true'
+            redirectTo: 'http://buildbank.netlify.app/LandingPage/index.html?showLogin=true'
         });
         if (error) {
             forgotError.textContent = 'Error sending reset link: ' + error.message;
@@ -200,7 +210,6 @@ document.getElementById('forgotEmail')?.addEventListener('focus', () => {
     const forgotError = document.getElementById('forgot-error');
     forgotError.classList.remove('active');
 });
-
 document.addEventListener('DOMContentLoaded', () => {
     signupModal = document.querySelector('#signup-modal');
     loginModal = document.querySelector('#login-modal');
@@ -214,15 +223,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelector('.nav-links');
     const loginError = document.getElementById('login-error');
 
-    // Check auth state on load
+    // Check auth state on load and clear error if present
     supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session && session.user.email_confirmed_at) {
-            loginError.textContent = 'Now you can log in.';
-            loginError.classList.remove('active');
-            loginError.classList.add('success');
-        } else if (loginError.textContent === '') {
-            loginError.textContent = 'Signup successful! Please confirm your email to log in.';
-            loginError.classList.add('active');
+        if (!session) {
+            loginError.textContent = ''; // Ensure empty on no session
+            loginError.classList.remove('active', 'success');
         }
     });
 
@@ -372,4 +377,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeTab();
     window.addEventListener('hashchange', initializeTab);
-});
+})
