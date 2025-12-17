@@ -22,7 +22,7 @@ async function signUpUser(email, password, name) {
             password,
             options: {
                 data: { name },
-                emailRedirectTo: 'http://localhost:3000/LandingPage/index.html'
+                emailRedirectTo: 'https://buildbank.netlify.app/'
             }
         });
         if (authError) {
@@ -133,7 +133,7 @@ async function resetPassword(email) {
             return;
         }
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: 'http://127.0.0.1:5500/LandingPage/?type=recovery'
+            redirectTo: 'https://buildbank.netlify.app/'
         });
         if (error) {
             forgotError.textContent = 'Error sending reset link: ' + error.message;
