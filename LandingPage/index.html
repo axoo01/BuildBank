@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BuildBank - Project Expense Tracker</title>
-    <base href="/">
+    <base href="/LandingPage/">
     <link rel="stylesheet" href="css/landing.css">
     <link rel="icon" href="img/favicon.png" type="image/x-icon">
 </head>
@@ -72,7 +72,7 @@
         </div>
     </section>
 
-     <!-- Signup Modal -->
+    <!-- Signup Modal -->
     <div class="modal" id="signup-modal">
         <div class="modal-content">
             <h2>Sign Up</h2>
@@ -93,29 +93,29 @@
             </form>
             <p class="modal-link">Already have an account? <a href="#" class="login-link">Log In</a></p>
         </div>
-    </div>
+</div>
 
    <!-- Login Modal-->>
    <div class="modal" id="login-modal">
-        <div class="modal-content">
-            <h2>Log In</h2>
-            <div id="signup-message" class="message" style="display: none; color: green; margin-bottom: 10px;">Sign-up successful. Now you can log in.</div>
-            <form>
-                <div class="form-group">
-                    <input type="email" placeholder="Email" id="loginEmail" required>
-                </div>
-                <div class="form-group">
-                    <input type="password" placeholder="Password" id="loginPassword" required>
-                </div>
-                <div class="form-group">
-                    <button type="button" id="loginBtn">Log In</button>
-                </div>
-                <div id="login-error" class="error-message"></div>
-            </form>
-            <p class="modal-link"><a href="#" class="forgot-password">Forgot Password?</a></p>
-            <p class="modal-link">Don’t have an account? <a href="#" class="signup-link">Sign up</a></p>
-        </div>
+    <div class="modal-content">
+        <h2>Log In</h2>
+        <div id="signup-message" class="message" style="display: none; color: green; margin-bottom: 10px;">Sign-up successful. Now you can log in.</div>
+        <form>
+            <div class="form-group">
+                <input type="email" placeholder="Email" id="loginEmail" required>
+            </div>
+            <div class="form-group">
+                <input type="password" placeholder="Password" id="loginPassword" required>
+            </div>
+            <div class="form-group">
+                <button type="button" id="loginBtn">Log In</button>
+            </div>
+            <div id="login-error" class="error-message"></div>
+        </form>
+        <p class="modal-link"><a href="#" class="forgot-password">Forgot Password?</a></p>
+        <p class="modal-link">Don’t have an account? <a href="#" class="signup-link">Sign up</a></p>
     </div>
+</div>
 
     <!-- Forgot Password Modal -->
     <div class="modal" id="forgot-password-modal">
@@ -133,6 +133,26 @@
             <p><a href="#" class="back-to-login">Back to Login</a></p>
         </div>
     </div>
+
+    <div class="modal" id="reset-modal">
+    <div class="modal-content">
+        <h2>Set New Password</h2>
+        <form id="newPasswordForm">
+            <div class="form-group">
+                <input type="password" placeholder="New Password" id="newPass1" required>
+            </div>
+            <div class="form-group">
+                <input type="password" placeholder="Confirm Password" id="newPass2" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Update Password</button>
+            </div>
+            <div id="reset-error" class="error-message"></div>
+        </form>
+        <p class="modal-link"><a href="#" class="back-to-login">Back to Login</a></p>
+    </div>
+</div>
+
     <!-- Footer -->
     <footer class="footer">
         <p class="copyright">© 2025 Axocrafts</p>

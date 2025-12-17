@@ -2,7 +2,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const supabase = createClient('https://smcyqxylufjgkmumhonk.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3lxeHlsdWZqZ2ttdW1ob25rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2MzUyNTgsImV4cCI6MjA2NDIxMTI1OH0.aRLFJCwe8WpMx1mXRmHWfnLH3XLi3af5Z1KeiJzAJNc');
 
-let signupModal, loginModal, forgotPasswordModal;
+let signupModal, loginModal, forgotPasswordModal, resetModal;
 
 async function signUpUser(email, password, name) {
     const signupError = document.getElementById('signup-error');
@@ -17,13 +17,12 @@ async function signUpUser(email, password, name) {
             signupError.classList.add('active');
             return;
         }
-
         const { data, error: authError } = await supabase.auth.signUp({
             email,
             password,
             options: {
                 data: { name },
-                emailRedirectTo: 'http://buildbank.netlify.app/LandingPage/index.html'
+                emailRedirectTo: 'http://localhost:3000/LandingPage/index.html'
             }
         });
         if (authError) {
@@ -32,7 +31,6 @@ async function signUpUser(email, password, name) {
             signupError.classList.add('active');
             throw authError;
         }
-
         if (!data.user) {
             signupError.textContent = 'Signup successful! Please check your email to verify your account.';
             signupError.classList.remove('active');
@@ -42,10 +40,9 @@ async function signUpUser(email, password, name) {
             signupEmail.value = '';
             signupPassword.value = '';
             // Keep signup modal open for 1 minute, then close
-            setTimeout(() => signupModal.style.display = 'none', 20000);
+            setTimeout(() => signupModal.style.display = 'none', 60000);
             return;
         }
-
         const { error: insertError } = await supabase
             .from('users')
             .insert({
@@ -54,7 +51,6 @@ async function signUpUser(email, password, name) {
                 name: name,
                 created_at: new Date().toISOString()
             });
-
         if (insertError) {
             if (insertError.status === 409) {
                 signupError.textContent = 'This user is already registered.';
@@ -67,16 +63,19 @@ async function signUpUser(email, password, name) {
             }
             throw insertError;
         }
-
-        signupError.textContent = 'Signup successful! Please check your email to verify your account.';
+        signupError.textContent = 'Signup successful! Now you can log in.';
         signupError.classList.remove('active');
         signupError.classList.add('success');
-        // Clear input fields
         signupName.value = '';
         signupEmail.value = '';
         signupPassword.value = '';
-        // Keep signup modal open for 1 minute, then close
-        setTimeout(() => signupModal.style.display = 'none', 60000);
+
+        signupModal.style.display = 'none';
+        loginModal.style.display = 'flex';
+        const loginError = document.getElementById('login-error');
+        loginError.textContent = 'Signup successful! Now you can log in.';
+        loginError.classList.remove('active');
+        loginError.classList.add('success');
     } catch (err) {
         signupError.textContent = 'This user is already registered.';
         signupError.classList.remove('success');
@@ -94,7 +93,6 @@ async function loginUser(email, password) {
             loginError.classList.add('active');
             return;
         }
-
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
             if (error.message.includes('Email not confirmed')) {
@@ -115,7 +113,7 @@ async function loginUser(email, password) {
             }
             loginError.classList.add('active');
         } else {
-            window.location.href = 'Dashboard/dashboard.html';
+            window.location.href = '../../Dashboard/dashboard.html';
             // Clear input fields on success
             loginEmail.value = '';
             loginPassword.value = '';
@@ -129,24 +127,22 @@ async function loginUser(email, password) {
 async function resetPassword(email) {
     const forgotError = document.getElementById('forgot-error');
     try {
-        // Validate input
         if (!email) {
             forgotError.textContent = 'Please enter your email to reset password.';
             forgotError.classList.add('active');
             return;
         }
-
-        const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: 'http://buildbank.netlify.app/LandingPage/index.html?showLogin=true'
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: 'http://127.0.0.1:5500/LandingPage/?type=recovery'
         });
         if (error) {
             forgotError.textContent = 'Error sending reset link: ' + error.message;
             forgotError.classList.add('active');
         } else {
             forgotError.textContent = 'Password reset link sent to your email! Please check your inbox.';
-            forgotError.classList.add('active');
-            forgotPasswordModal.style.display = 'none';
-            loginModal.style.display = 'flex';
+            forgotError.classList.remove('active');
+            forgotError.classList.add('success');
+            
         }
     } catch (err) {
         forgotError.textContent = 'Unexpected error: ' + err.message;
@@ -154,66 +150,37 @@ async function resetPassword(email) {
     }
 }
 
-document.getElementById('signupBtn')?.addEventListener('click', (event) => {
-    event.preventDefault();
-    const name = document.getElementById('signupName').value;
-    const email = document.getElementById('signupEmail').value;
-    const password = document.getElementById('signupPassword').value;
-    const signupError = document.getElementById('signup-error');
-    signupError.classList.remove('active'); // Clear error on new attempt
-    signUpUser(email, password, name);
-}, false);
-
-// Clear error on input focus
-document.getElementById('signupName')?.addEventListener('focus', () => {
-    const signupError = document.getElementById('signup-error');
-    signupError.classList.remove('active');
-});
-document.getElementById('signupEmail')?.addEventListener('focus', () => {
-    const signupError = document.getElementById('signup-error');
-    signupError.classList.remove('active');
-});
-document.getElementById('signupPassword')?.addEventListener('focus', () => {
-    const signupError = document.getElementById('signup-error');
-    signupError.classList.remove('active');
-});
-
-document.getElementById('loginBtn')?.addEventListener('click', (e) => {
+// Password reset form handler
+document.getElementById('newPasswordForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    const loginError = document.getElementById('login-error');
-    loginError.classList.remove('active'); // Clear error on new attempt
-    loginUser(email, password);
-}, false);
-
-// Clear error on input focus
-document.getElementById('loginEmail')?.addEventListener('focus', () => {
-    const loginError = document.getElementById('login-error');
-    loginError.classList.remove('active');
+    const pass1 = document.getElementById('newPass1').value;
+    const pass2 = document.getElementById('newPass2').value;
+    const error = document.getElementById('reset-error');
+    if (pass1 !== pass2) {
+        error.textContent = 'Passwords do not match';
+        error.classList.add('active');
+        return;
+    }
+    const { error: updateError } = await supabase.auth.updateUser({ password: pass1 });
+    if (updateError) {
+        error.textContent = updateError.message;
+        error.classList.add('active');
+    } else {
+        error.textContent = 'Password updated successfully!';
+        error.classList.remove('active');
+        error.classList.add('success');
+        setTimeout(() => {
+            resetModal.style.display = 'none';
+            loginModal.style.display = 'flex';
+        }, 2000);
+    }
 });
-document.getElementById('loginPassword')?.addEventListener('focus', () => {
-    const loginError = document.getElementById('login-error');
-    loginError.classList.remove('active');
-});
 
-document.getElementById('resetPasswordBtn')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    const email = document.getElementById('forgotEmail').value;
-    const forgotError = document.getElementById('forgot-error');
-    forgotError.classList.remove('active'); // Clear error on new attempt
-    resetPassword(email);
-}, false);
-
-// Clear error on input focus
-document.getElementById('forgotEmail')?.addEventListener('focus', () => {
-    const forgotError = document.getElementById('forgot-error');
-    forgotError.classList.remove('active');
-});
 document.addEventListener('DOMContentLoaded', () => {
     signupModal = document.querySelector('#signup-modal');
     loginModal = document.querySelector('#login-modal');
     forgotPasswordModal = document.querySelector('#forgot-password-modal');
+    resetModal = document.querySelector('#reset-modal');
     const getStartedBtn = document.querySelector('.get-started-btn');
     const loginLink = document.querySelector('.login-link');
     const signupLink = document.querySelector('.signup-link');
@@ -222,6 +189,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
     const loginError = document.getElementById('login-error');
+
+    // Listen for password recovery event
+    supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'PASSWORD_RECOVERY') {
+            resetModal.style.display = 'flex';
+        }
+    });
 
     // Check auth state on load and clear error if present
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -242,6 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loginModal) {
             loginModal.style.display = 'flex';
             window.history.replaceState({}, document.title, window.location.pathname); // Clear query param
+        }
+        if (urlParams.get('type') === 'recovery') {
+                resetModal.style.display = 'flex';
         }
     }
 
@@ -314,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    [signupModal, loginModal, forgotPasswordModal].forEach(modal => {
+    [signupModal, loginModal, forgotPasswordModal, resetModal].forEach(modal => {
         if (modal) {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) modal.style.display = 'none';
@@ -377,4 +354,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeTab();
     window.addEventListener('hashchange', initializeTab);
-})
+});
+
+document.getElementById('signupBtn')?.addEventListener('click', (event) => {
+    event.preventDefault();
+    const name = document.getElementById('signupName').value;
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+    const signupError = document.getElementById('signup-error');
+    signupError.classList.remove('active'); // Clear error on new attempt
+    signUpUser(email, password, name);
+}, false);
+
+// Clear error on input focus
+document.getElementById('signupName')?.addEventListener('focus', () => {
+    const signupError = document.getElementById('signup-error');
+    signupError.classList.remove('active');
+});
+document.getElementById('signupEmail')?.addEventListener('focus', () => {
+    const signupError = document.getElementById('signup-error');
+    signupError.classList.remove('active');
+});
+document.getElementById('signupPassword')?.addEventListener('focus', () => {
+    const signupError = document.getElementById('signup-error');
+    signupError.classList.remove('active');
+});
+
+document.getElementById('loginBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const loginError = document.getElementById('login-error');
+    loginError.classList.remove('active'); // Clear error on new attempt
+    loginUser(email, password);
+}, false);
+
+// Clear error on input focus
+document.getElementById('loginEmail')?.addEventListener('focus', () => {
+    const loginError = document.getElementById('login-error');
+    loginError.classList.remove('active');
+});
+document.getElementById('loginPassword')?.addEventListener('focus', () => {
+    const loginError = document.getElementById('login-error');
+    loginError.classList.remove('active');
+});
+
+document.getElementById('resetPasswordBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('forgotEmail').value;
+    const forgotError = document.getElementById('forgot-error');
+    forgotError.classList.remove('active'); // Clear error on new attempt
+    resetPassword(email);
+}, false);
+
+// Clear error on input focus
+document.getElementById('forgotEmail')?.addEventListener('focus', () => {
+    const forgotError = document.getElementById('forgot-error');
+    forgotError.classList.remove('active');
+});
